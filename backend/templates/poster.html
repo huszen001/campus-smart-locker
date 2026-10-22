@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>柜贴 · {% if box %}{{ box }} 号柜格{% else %}柜体总码{% endif %}</title>
+<style>
+  :root { --fg:#1b2333; --dim:#7b8798; --line:#e3e7ef; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px; background:#f2f4f8; color:var(--fg);
+         font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         display:flex; flex-direction:column; align-items:center; }
+
+  /* 柜贴本体：屏幕上是一张卡片，打印出来就是贴到柜子上的那张纸 */
+  .sticker { width:100%; max-width:360px; background:#fff; border-radius:18px;
+             padding:28px 24px 22px; text-align:center;
+             box-shadow:0 6px 24px rgba(20,30,60,.07); }
+  .no { font-size:13px; color:var(--dim); letter-spacing:.08em; }
+  .no b { font-size:40px; color:var(--fg); margin-right:6px; }
+  .no.cabinet b { font-size:26px; letter-spacing:.14em; }
+  .sticker img { width:240px; height:240px; margin:16px 0 8px; }
+  .tip { font-size:16px; font-weight:600; }
+  .url { color:var(--dim); font-size:11px; word-break:break-all; margin-top:12px; }
+
+  .tools { margin-top:22px; color:var(--dim); font-size:13px; text-align:center; }
+  .tools a { color:#0a84ff; }
+
+  @media print {
+    body { background:#fff; padding:0; }
+    .sticker { box-shadow:none; border:1px solid var(--line); }
+    .tools { display:none; }   /* 打印时别把操作提示印进贴纸 */
+  }
+</style>
+</head>
+<body>
+{% if box %}
+  {% set qr = "/qr/%d.png"|format(box) %}
+  {% set scan = "/scan?box=%d"|format(box) %}
+{% else %}
+  {% set qr = "/qr/cabinet.png" %}
+  {% set scan = "/scan" %}
+{% endif %}
+
+  <div class="sticker">
+    {% if box %}
+      <div class="no"><b>{{ box }}</b>号柜格</div>
+      <img src="{{ qr }}" alt="{{ box }} 号柜格二维码">
+      <div class="tip">微信「扫一扫」存取物品</div>
+    {% else %}
+      <div class="no cabinet"><b>柜 体 总 码</b></div>
+      <img src="{{ qr }}" alt="柜体总码二维码">
+      <div class="tip">微信「扫一扫」存取物品</div>
+      <div style="font-size:12.5px;color:#7b8798;margin-top:6px">
+        存件：系统自动分配一个空格<br>取件：用取件码即可，不用记是哪个格
+      </div>
+    {% endif %}
+    <div class="url">{{ url }}</div>
+  </div>
+
+  <div class="tools">
+    按 <b>Ctrl+P</b> 打印这张柜贴，沿卡片边剪下贴到柜体上<br>
+    只要图片：<a href="{{ qr }}">{{ qr }}</a>
+    ｜ 先预览一下：<a href="{{ scan }}">扫码页</a>
+    ｜ <a href="/poster">全部柜贴</a>
+  </div>
+</body>
+</html>

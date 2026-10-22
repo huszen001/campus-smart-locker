@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智能寄存柜 · 监控台</title>
+<style>
+  :root { --bg:#0f1420; --card:#1a2130; --line:#2a3346; --fg:#e6ebf5; --dim:#8593ab;
+          --ok:#34c759; --warn:#ff9f0a; --err:#ff453a; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; background:var(--bg); color:var(--fg);
+         font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:20px; }
+  .sub a { color:#8fd0ff; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .panel h2 { font-size:14px; color:var(--dim); font-weight:600; margin:0 0 14px;
+              text-transform:uppercase; letter-spacing:.06em; }
+  .boxes { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:12px; }
+  .stat { background:#141a26; border:1px solid var(--line); border-radius:10px; padding:13px 14px; }
+  .stat .k { font-size:12px; color:var(--dim); }
+  .stat .v { font-size:24px; font-weight:600; margin-top:5px;
+             font-variant-numeric:tabular-nums; }
+  .stat .u { font-size:13px; font-weight:400; color:var(--dim); margin-left:3px; }
+  .stat .n { font-size:11.5px; color:var(--dim); margin-top:3px; }
+  .stat.warn .v { color:var(--warn); }
+  .box { background:#141a26; border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .box .no { font-size:12px; color:var(--dim); }
+  .box .state { font-size:19px; font-weight:600; margin:6px 0 10px; }
+  .box dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:12.5px; }
+  .box dt { color:var(--dim); }
+  .box dd { margin:0; text-align:right; }
+  .IDLE      { color:var(--dim); }
+  .OPEN      { color:var(--warn); }
+  .OCCUPIED  { color:var(--ok); }
+  .ERROR     { color:var(--err); }
+  .UNKNOWN   { color:var(--dim); }
+  .OFFLINE   { color:var(--err); }
+  .dot { display:inline-block; width:7px; height:7px; border-radius:50%;
+         background:var(--dim); margin-right:6px; vertical-align:middle; }
+  .dot.on { background:var(--ok); }
+  .pill { font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:999px; }
+  .p-pending { background:#3a3218; color:#ffcf5a; }
+  .p-opened  { background:#22333f; color:#6fc3ff; }
+  .p-done    { background:#1b3524; color:var(--ok); }
+  .p-failed  { background:#3a1f1e; color:#ff8b82; }
+  .code { font-family:ui-monospace,Consolas,monospace; letter-spacing:.14em;
+          color:#8fd0ff; font-weight:600; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-weight:600; }
+  .ok { color:var(--ok); } .deny { color:var(--err); }
+  .money { font-family:ui-monospace,Consolas,monospace; }
+  .money.neg { color:var(--err); }
+  .accruing { color:var(--warn); }          /* 还在柜里，费用还在涨 */
+  form.pay { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  form.pay input { background:#141a26; border:1px solid var(--line); color:var(--fg);
+                   border-radius:8px; padding:7px 10px; font:13px inherit; }
+  form.pay button { background:#2f6fd0; border:0; color:#fff; border-radius:8px;
+                    padding:8px 16px; font:600 13px inherit; cursor:pointer; }
+  #paymsg { font-size:12.5px; }
+</style>
+</head>
+<body>
+  <h1>校园智能寄存柜 · 监控台</h1>
+  <div class="sub">设备 <code>{{ device }}</code> ｜ 柜格数 {{ box_count }} ｜ 数据每 2 秒刷新
+    ｜ <a href="/poster" target="_blank">柜贴二维码</a><br>
+    计费：免费 {{ human(pricing.free) }} ｜ 每满 {{ human(pricing.unit) }}
+    ¥{{ '%.2f'|format(pricing.fee / 100) }} ｜ 封顶 ¥{{ '%.2f'|format(pricing.max / 100) }}
+    <span style="color:#ff9f0a">（≈ 表示还在柜里、费用还在涨）</span></div>
+
+  <div class="panel">
+    <h2>今日运营</h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="panel" style="margin-top:20px">
+    <h2>柜格状态</h2>
+    <div class="boxes" id="boxes"></div>
+  </div>
+
+  <div class="panel" style="margin-top:20px">
+    <h2>订单（最近 20 条）—— pending→opened→done 必须等门磁回执</h2>
+    <table>
+      <thead><tr><th>#</th><th>格</th><th>动作</th><th>状态</th><th>取件码</th>
+                 <th>费用</th><th>下单</th><th>关门</th></tr></thead>
+      <tbody id="orders"></tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top:20px">
+    <h2>钱包 —— 充值入口只有这里（管理员）</h2>
+    <form class="pay" id="payform">
+      <input id="payphone" placeholder="手机号" size="14" autocomplete="off">
+      <input id="payamt" placeholder="金额（元）" size="10" autocomplete="off">
+      <button type="submit">充值</button>
+      <span id="paymsg"></span>
+    </form>
+    <table>
+      <thead><tr><th>时间</th><th>手机号</th><th>类型</th><th>金额</th><th>余额</th><th>说明</th></tr></thead>
+      <tbody id="ledger"></tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top:20px">
+    <h2>操作日志（最近 50 条）</h2>
+    <table>
+      <thead><tr><th>时间</th><th>来源</th><th>操作者</th><th>格</th><th>动作</th><th>结果</th><th>说明</th></tr></thead>
+      <tbody id="logs"></tbody>
+    </table>
+  </div>
+
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// 监控台的口令就带在地址里（页面本来就只能凭它打开），这里原样转给后面的接口。
+// /api/boxes 不查口令 —— 扫码页也要用它，而且柜格状态不算敏感。
+const K = new URLSearchParams(location.search).get('k') || '';
+const api = p => p + (K ? '?k=' + encodeURIComponent(K) : '');
+
+const STATE_CN = { IDLE:'空闲', OPEN:'门已开', OCCUPIED:'有物品',
+                   ERROR:'故障', UNKNOWN:'未连接', OFFLINE:'设备离线' };
+
+// 后端一律用"分"（整数）算钱，只在显示这一层换成元
+const yuan = fen => (fen / 100).toFixed(2);
+const feeCell = o => {
+  if (o.fee_fen === null || o.fee_fen === undefined) return '<span style="color:#8593ab">—</span>';
+  const cls = 'money' + (o.fee_live ? ' accruing' : '') + (o.fee_fen < 0 ? ' neg' : '');
+  return `<span class="${cls}">${o.fee_live ? '≈' : ''}¥${yuan(o.fee_fen)}</span>`;
+};
+
+// 秒数说成人话。"平均寄存时长"这个数在演示参数下会是几十秒，
+// 在真实参数下是几十分钟 —— 两种量级都得读得下去。
+function humanSecs(s) {
+  if (s === null || s === undefined) return '—';
+  if (s >= 3600) return (s / 3600).toFixed(1) + ' 小时';
+  if (s >= 60) return (s / 60).toFixed(1) + ' 分钟';
+  return s + ' 秒';
+}
+
+function stat(k, v, unit, note, warn) {
+  return `<div class="stat${warn ? ' warn' : ''}">
+    <div class="k">${esc(k)}</div>
+    <div class="v">${v}${unit ? `<span class="u">${esc(unit)}</span>` : ''}</div>
+    <div class="n">${note || ''}</div></div>`;
+}
+
+async function tick() {
+  const st = await (await fetch(api('/api/stats'))).json();
+  document.getElementById('stats').innerHTML =
+    stat('今日营收', '¥' + yuan(st.revenue_fen), '', `${st.date} · 含免费单`) +
+    stat('今日寄存', st.stores, '次', `已结算 ${st.settled} 单`) +
+    stat('当前在柜', st.in_use, `/ ${st.box_count} 格`, '东西还没取走') +
+    stat('平均寄存', humanSecs(st.avg_seconds), '', st.avg_seconds === null ? '今天还没有结算完的单' : '按关门时刻算') +
+    stat('封顶单', st.capped, '单', st.capped ? '有人放了一整天' : '今日没有触顶', st.capped > 0);
+
+  const boxes = await (await fetch('/api/boxes')).json();
+  document.getElementById('boxes').innerHTML = boxes.map(b => {
+    // 设备掉线时 state 是陈旧值，显示离线才不会被骗
+    const key = b.online ? b.state : 'OFFLINE';
+    return `
+    <div class="box">
+      <div class="no"><span class="dot ${b.online ? 'on' : ''}"></span>格 ${b.box}${b.online ? '' : ' · 离线'}</div>
+      <div class="state ${esc(key)}">${esc(STATE_CN[key] || key)}</div>
+      <dl>
+        <dt>锁</dt><dd>${b.locked === null ? '—' : (b.locked ? '已锁' : '未锁')}</dd>
+        <dt>门</dt><dd>${b.door_open === null ? '—' : (b.door_open ? '开' : '关')}</dd>
+        <dt>格内物品</dt><dd>${b.item === null ? '—' : (b.item ? '有' : '无')}</dd>
+        <dt>电压</dt><dd>${b.battery === null ? '—' : b.battery + ' mV'}</dd>
+      </dl>
+    </div>`;
+  }).join('');
+
+  const orders = await (await fetch(api('/api/orders'))).json();
+  document.getElementById('orders').innerHTML = orders.map(o => `
+    <tr>
+      <td>${o.id}</td><td>${o.box}</td>
+      <td>${o.action === 'store' ? '存件' : '取件'}</td>
+      <td><span class="pill p-${esc(o.status)}">${esc(o.status)}</span></td>
+      <td class="code">${esc(o.pickup_code || '')}</td>
+      <td>${feeCell(o)}</td>
+      <td>${esc(o.created_at)}</td><td>${esc(o.closed_at || '—')}</td>
+    </tr>`).join('') || '<tr><td colspan="8" style="color:#8593ab">暂无记录</td></tr>';
+
+  const logs = await (await fetch(api('/api/logs'))).json();
+  document.getElementById('logs').innerHTML = logs.map(l => `
+    <tr>
+      <td>${esc(l.ts)}</td><td>${esc(l.source)}</td><td>${esc(l.actor)}</td>
+      <td>${l.box ?? ''}</td><td>${esc(l.action)}</td>
+      <td class="${l.result}">${esc(l.result)}</td><td>${esc(l.detail)}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:#8593ab">暂无记录</td></tr>';
+
+  const led = await (await fetch(api('/api/ledger'))).json();
+  document.getElementById('ledger').innerHTML = led.map(r => {
+    const in_ = r.kind === 'recharge';      // 充值为正、扣费为负
+    return `
+    <tr>
+      <td>${esc(r.ts)}</td><td>${esc(r.phone || '—')}</td>
+      <td>${in_ ? '充值' : '扣费'}</td>
+      <td class="money ${in_ ? 'ok' : 'deny'}">${in_ ? '+' : '-'}¥${yuan(Math.abs(r.amount_fen))}</td>
+      <td class="money ${r.balance_after_fen < 0 ? 'neg' : ''}">¥${yuan(r.balance_after_fen)}</td>
+      <td>${esc(r.note || '')}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="color:#8593ab">还没有任何流水</td></tr>';
+}
+
+document.getElementById('payform').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('paymsg');
+  const phone = document.getElementById('payphone').value.trim();
+  const amount = document.getElementById('payamt').value.trim();
+  msg.style.color = '#8593ab';
+  msg.textContent = '处理中…';
+  try {
+    const res = await fetch(api('/api/recharge'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, amount }),
+    });
+    const d = await res.json();
+    if (!res.ok || !d.ok) {
+      msg.style.color = '#ff453a';
+      msg.textContent = d.msg || ('充值失败（' + res.status + '）');
+      return;
+    }
+    msg.style.color = '#34c759';
+    msg.textContent = `已充值，余额 ¥${yuan(d.balance_fen)}`;
+    document.getElementById('payamt').value = '';
+    tick();                                  // 立刻刷一次，不干等 2 秒
+  } catch (err) {
+    msg.style.color = '#ff453a';
+    msg.textContent = '请求失败：' + err;
+  }
+});
+
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>

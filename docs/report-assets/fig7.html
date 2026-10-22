@@ -1,0 +1,73 @@
+<!doctype html><meta charset="utf-8"><style>
+:root{--ink:#1E293B;--sub:#475569;--mute:#64748B;--line:#CBD5E1;
+--p1:#2563EB;--p1f:#EFF6FF;--p1b:#BFDBFE;--p2:#0D9488;--p2f:#ECFDF5;--p2b:#99F6E4;
+--p3:#7C3AED;--p3f:#F5F3FF;--p3b:#DDD6FE;--p4:#EA580C;--p4f:#FFF7ED;--p4b:#FED7AA;
+--p5:#DB2777;--p5f:#FDF2F8;--p5b:#FBCFE8;}
+html,body{margin:0;padding:0;background:#fff}
+svg{display:block;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+.sub-line{font-size:12.5px;fill:#64748B}
+.grp-t{font-size:12.5px;font-weight:700}
+.nt{font-size:12.5px;font-weight:700}
+.nts{font-size:11.5px;font-weight:700}
+.nb{font-size:10px;fill:#475569}
+.nbs{font-size:9.5px;fill:#475569}
+.lb{font-size:10.5px;fill:#64748B}
+.lb2{font-size:9.5px;fill:#64748B}
+</style><svg viewBox="0 0 1200 620" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="d1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2563EB"/></marker><marker id="d2" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0D9488"/></marker><marker id="d3" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EA580C"/></marker><marker id="d4" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7C3AED"/></marker><marker id="dg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker></defs>
+<text class="sub-line" x="30" y="30">矩形＝外部实体　圆角框＝处理过程　敞口矩形＝数据存储；实线＝数据流，虚线＝对存储的读 / 写</text>
+<rect x="40" y="110" width="160" height="76" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.4"/>
+<text class="nts" x="120.0" y="136" text-anchor="middle" fill="#2563EB">学生用户</text>
+<text class="nb" x="120.0" y="154" text-anchor="middle">H5 扫码 / 校园卡</text>
+<rect x="250" y="110" width="170" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.4"/>
+<text class="nts" x="335.0" y="136" text-anchor="middle" fill="#EA580C">P1 授权判定</text>
+<text class="nb" x="335.0" y="154" text-anchor="middle">身份 → 是否放行</text>
+<rect x="470" y="110" width="170" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.4"/>
+<text class="nts" x="555.0" y="136" text-anchor="middle" fill="#EA580C">P2 建单与选格</text>
+<text class="nb" x="555.0" y="154" text-anchor="middle">存件 / 取件 · 生成取件码</text>
+<rect x="690" y="110" width="170" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.4"/>
+<text class="nts" x="775.0" y="136" text-anchor="middle" fill="#EA580C">P3 命令下发</text>
+<text class="nb" x="775.0" y="154" text-anchor="middle">MQTT cmd 主题</text>
+<rect x="930" y="110" width="200" height="76" rx="8" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1.4"/>
+<text class="nts" x="1030.0" y="136" text-anchor="middle" fill="#7C3AED">柜体设备</text>
+<text class="nb" x="1030.0" y="154" text-anchor="middle">ESP32 · 舵机 / 门磁 / 秤</text>
+<path d="M200 148 L250 148" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d3)"/>
+<text class="lb" x="225" y="140" text-anchor="middle">凭证</text>
+<path d="M420 148 L470 148" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d3)"/>
+<text class="lb" x="445" y="140" text-anchor="middle">校验通过</text>
+<path d="M640 148 L690 148" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d3)"/>
+<text class="lb" x="665" y="140" text-anchor="middle">订单</text>
+<path d="M860 148 L930 148" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d3)"/>
+<text class="lb" x="895" y="140" text-anchor="middle">开门</text>
+<rect x="930" y="270" width="200" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.4"/>
+<text class="nts" x="1030.0" y="294" text-anchor="middle" fill="#EA580C">P4 回执判定</text>
+<text class="nb" x="1030.0" y="312" text-anchor="middle">门磁 + 秤 state</text>
+<text class="nbs" x="1030.0" y="328" text-anchor="middle">done / failed</text>
+<rect x="690" y="270" width="170" height="76" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.4"/>
+<text class="nts" x="775.0" y="296" text-anchor="middle" fill="#EA580C">P5 结算计费</text>
+<text class="nb" x="775.0" y="314" text-anchor="middle">按存放时长扣费</text>
+<path d="M1030 186 L1030 270" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d2)"/>
+<text class="lb" x="1042" y="232" text-anchor="start">door_closed + state</text>
+<path d="M930 308 L860 308" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#d3)"/>
+<text class="lb" x="895" y="300" text-anchor="middle">订单完结</text>
+<path d="M250 470 H420 V522 H250" stroke="#0D9488" stroke-width="1.5" fill="#ECFDF5"/>
+<text class="nts" x="262" y="491" fill="#0D9488">D1 users</text>
+<text class="nbs" x="262" y="508">手机号 / 卡号 / 余额</text>
+<path d="M470 470 H640 V522 H470" stroke="#0D9488" stroke-width="1.5" fill="#ECFDF5"/>
+<text class="nts" x="482" y="491" fill="#0D9488">D2 orders</text>
+<text class="nbs" x="482" y="508">订单状态机</text>
+<path d="M690 470 H860 V522 H690" stroke="#0D9488" stroke-width="1.5" fill="#ECFDF5"/>
+<text class="nts" x="702" y="491" fill="#0D9488">D3 ledger</text>
+<text class="nbs" x="702" y="508">充值 / 扣费流水</text>
+<path d="M930 470 H1130 V522 H930" stroke="#0D9488" stroke-width="1.5" fill="#ECFDF5"/>
+<text class="nts" x="942" y="491" fill="#0D9488">D4 audit</text>
+<text class="nbs" x="942" y="508">每一次 ok / deny</text>
+<path d="M335 186 L335 470" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#dg)"/>
+<text class="lb" x="347" y="330" text-anchor="start">读余额 / 绑卡</text>
+<path d="M555 186 L555 470" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#dg)"/>
+<text class="lb" x="567" y="330" text-anchor="start">写订单</text>
+<path d="M775 346 L775 470" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#dg)"/>
+<text class="lb" x="787" y="410" text-anchor="start">写流水</text>
+<path d="M1030 346 L1030 470" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#dg)"/>
+<text class="lb" x="1042" y="410" text-anchor="start">写审计</text>
+</svg>

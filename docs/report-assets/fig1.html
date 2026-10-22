@@ -1,0 +1,212 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  :root{
+    --ink:#1E293B; --sub:#475569; --mute:#64748B; --line:#CBD5E1;
+    --p1:#2563EB; --p1f:#EFF6FF; --p1b:#BFDBFE;
+    --p2:#0D9488; --p2f:#ECFDF5; --p2b:#99F6E4;
+    --p3:#7C3AED; --p3f:#F5F3FF; --p3b:#DDD6FE;
+    --p4:#EA580C; --p4f:#FFF7ED; --p4b:#FED7AA;
+    --p5:#DB2777; --p5f:#FDF2F8; --p5b:#FBCFE8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; padding:32px 24px 64px; background:#F1F5F9; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;}
+  header{max-width:1360px; margin:0 auto 28px;}
+  header h1{font-size:24px; margin:0 0 8px; letter-spacing:.5px;}
+  header p{margin:0; color:var(--mute); font-size:13.5px;}
+  header .meta{margin:10px 0 0; font-size:12.5px; color:var(--mute); line-height:1.8}
+  main{max-width:1360px; margin:0 auto;}
+  .fig{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 22px 16px; margin:0 0 28px; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  .fig h2{font-size:16px; margin:0 0 4px; letter-spacing:.5px;}
+  .fig .cap{font-size:12.5px; color:var(--mute); margin:0 0 14px; line-height:1.7;}
+  .fig svg{width:100%; height:auto; display:block;}
+  .note{font-size:12.5px; color:var(--sub); line-height:1.85; margin:14px 0 0; padding:12px 16px; background:#F8FAFC; border-left:3px solid var(--line); border-radius:0 8px 8px 0;}
+  .note b{color:var(--ink);}
+  .note ul{margin:8px 0 0; padding-left:20px}
+  .note li{margin:4px 0}
+  .warn{background:#FEF2F2; border-left-color:#FCA5A5}
+  .warn b{color:#B91C1C}
+
+  svg text{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;}
+  .sub-line{font-size:12.5px; fill:#64748B}
+  .grp-t{font-size:12.5px; font-weight:700}
+  .lb{font-size:10.5px; fill:#64748B}
+  .lb2{font-size:9.5px; fill:#64748B}
+  .nt{font-size:12.5px; font-weight:700}
+  .nts{font-size:11.5px; font-weight:700}
+  .nb{font-size:10px; fill:#475569}
+  .nbs{font-size:9.5px; fill:#475569}
+  .mt{font-size:11.5px; font-weight:700}
+  .todo{font-size:10px; fill:#334155}
+  .layer-t{font-size:14px; font-weight:700; fill:#FFFFFF}
+  .word{font-size:10px; fill:#334155}
+  .smt{font-size:9px; fill:#64748B}
+
+  @media print{
+    body{background:#fff; padding:0; margin:0}
+    header{padding:0 0 10px}
+    .fig{border:none; box-shadow:none; border-radius:0; padding:0; margin:0; page-break-after:always}
+    .fig:last-child{page-break-after:auto}
+    .note{background:#fff}
+    @page{size:A4 landscape; margin:10mm}
+  }
+
+html,body{margin:0;padding:0;background:#fff;}
+svg{display:block;width:1280.0px;height:900.0px;}
+</style></head><body><svg viewBox="0 0 1280 900" role="img" aria-label="系统工作原理图">
+    <defs>
+      <marker id="a-g" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/>
+      </marker>
+      <marker id="a-b" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#2563EB"/>
+      </marker>
+      <marker id="a-r" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DC2626"/>
+      </marker>
+      <marker id="a-t" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#0D9488"/>
+      </marker>
+    </defs>
+
+    <text class="sub-line" x="40" y="34">现场设备侧 ⇄ MQTT 消息总线 ⇄ 云端服务侧；蓝线＝命令下行，红线＝数据上行，青线＝设备内部信号</text>
+
+    <!-- ===== 左：现场设备侧 ===== -->
+    <rect x="40" y="64" width="400" height="616" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="grp-t" x="56" y="92" fill="#334155">现场设备侧（柜体）</text>
+
+    <rect x="58" y="104" width="364" height="58" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nt" x="72" y="128" fill="#1D4ED8">校园卡（RFID）</text>
+    <text class="nbs" x="72" y="147">13.56 MHz · ISO14443A 无源卡 · 卡内唯一 UID</text>
+
+    <rect x="58" y="182" width="364" height="58" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nt" x="72" y="206" fill="#0F766E">MFRC522 读卡模块 ×1</text>
+    <text class="nbs" x="72" y="225">SPI · 只吃 3.3V · 柜体级（全柜共用，不知是哪一格）</text>
+
+    <rect x="58" y="260" width="364" height="76" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nt" x="72" y="284" fill="#1D4ED8">ESP32 主控 ×1（跑 4 格状态机）</text>
+    <text class="nbs" x="72" y="303">Wi-Fi 联网 · 运行 MQTT 客户端</text>
+    <text class="nbs" x="72" y="319">发布 status / event，订阅 cmd / auth_result</text>
+    <text class="nbs" x="72" y="333">只执行命令，不判断权限</text>
+
+    <!-- 三个外设 -->
+    <rect x="58" y="372" width="116" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="70" y="396" fill="#0F766E">舵机 + 门磁</text>
+    <text class="nbs" x="70" y="414">1 号格 · 柜格级</text>
+    <text class="nbs" x="70" y="430">干簧管测门</text>
+
+    <rect x="180" y="372" width="116" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="192" y="396" fill="#0F766E">HX711</text>
+    <text class="nbs" x="192" y="414">1 号格 · 柜格级</text>
+    <text class="nbs" x="192" y="430">只判有物/无物</text>
+
+    <rect x="302" y="372" width="120" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="314" y="396" fill="#0F766E">0.96″ OLED</text>
+    <text class="nbs" x="314" y="414">柜体级 · 4 格轮放</text>
+    <text class="nbs" x="314" y="430">刷卡时插播</text>
+
+    <!-- 左列内部箭头 -->
+    <line x1="240" y1="164" x2="240" y2="178" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="240" y1="242" x2="240" y2="256" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="240" y1="338" x2="240" y2="368" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="lb2" x="250" y="176" fill="#475569">13.56 MHz 读 UID</text>
+    <text class="lb2" x="250" y="254" fill="#475569">SPI</text>
+    <text class="lb2" x="250" y="358" fill="#475569">PWM / 两线 / 软件 I²C</text>
+
+    <!-- 门磁反馈：沿右缘回到 ESP32 -->
+    <polyline points="422,410 436,410 436,292 426,292" fill="none" stroke="#DC2626" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#a-r)"/>
+    <text class="smt" x="440" y="356" fill="#DC2626">门状态反馈</text>
+
+    <!-- 接线小结 -->
+    <rect x="58" y="474" width="364" height="188" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="72" y="498" fill="#1E293B">GPIO 接线要点</text>
+    <text class="nbs" x="72" y="522">MFRC522　SCK 18 · MISO 19 · MOSI 23 · SDA 21 · RST 22</text>
+    <text class="nbs" x="72" y="542">SG90 信号　GPIO 13（建议单独 5V 供电、共地）</text>
+    <text class="nbs" x="72" y="562">门磁　　GPIO 4（另一端接 GND，内部上拉）</text>
+    <text class="nbs" x="72" y="582">HX711　　DT 27 · SCK 32（DT 建议串 1kΩ）</text>
+    <text class="nbs" x="72" y="602">OLED　　SDA 25 · SCL 26（软件 I²C）</text>
+    <text class="smt" x="72" y="628" fill="#B91C1C">⚠️ MFRC522 / HX711 / OLED 的 VCC 都必须接 3.3V</text>
+    <text class="smt" x="72" y="646" fill="#B91C1C">　 任意一个插到 5V 都会烧 —— HX711 插错会报废整块板子</text>
+
+    <!-- ===== 中：MQTT ===== -->
+    <rect x="600" y="300" width="180" height="150" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.8"/>
+    <text class="nt" x="690" y="332" text-anchor="middle" fill="#6D28D9">MQTT Broker</text>
+    <text class="nbs" x="690" y="354" text-anchor="middle">Mosquitto</text>
+    <text class="nbs" x="690" y="372" text-anchor="middle">局域网 0.0.0.0:1883</text>
+    <text class="nbs" x="690" y="390" text-anchor="middle">强制用户名密码</text>
+    <text class="nbs" x="690" y="408" text-anchor="middle">主题 locker/locker1/*</text>
+    <text class="nbs" x="690" y="432" text-anchor="middle">设备与后端解耦</text>
+
+    <!-- ===== 右：云端服务侧 ===== -->
+    <rect x="880" y="64" width="360" height="616" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="grp-t" x="896" y="92" fill="#334155">云端服务侧（Flask 服务器）</text>
+
+    <rect x="898" y="104" width="156" height="76" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nts" x="910" y="128" fill="#BE185D">H5 页面</text>
+    <text class="nbs" x="910" y="148">微信扫一扫打开</text>
+    <text class="nbs" x="910" y="164">存件 / 取件 / 绑卡</text>
+
+    <rect x="1066" y="104" width="156" height="76" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nts" x="1078" y="128" fill="#BE185D">网页监控台</text>
+    <text class="nbs" x="1078" y="148">柜格 · 订单 · 日志</text>
+    <text class="nbs" x="1078" y="164">需管理口令</text>
+
+    <rect x="898" y="210" width="324" height="110" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nt" x="912" y="236" fill="#C2410C">Flask 后端</text>
+    <text class="nbs" x="912" y="258">注册 / 绑卡（45s 窗口）· 授权判定（防越权）</text>
+    <text class="nbs" x="912" y="276">订单状态机 · 超时兜底 · 生成 6 位取件码</text>
+    <text class="nbs" x="912" y="294">MQTT 接入 · 写审计日志 · 二维码与柜贴</text>
+
+    <rect x="898" y="340" width="324" height="72" rx="9" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+    <text class="nts" x="912" y="364" fill="#C2410C">SQLite（locker.db）</text>
+    <text class="nbs" x="912" y="384">users · orders · audit 三张表</text>
+    <text class="nbs" x="912" y="400">没有柜体表，柜格状态在内存里</text>
+
+    <!-- 右列内部箭头 -->
+    <line x1="976" y1="180" x2="976" y2="206" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="1144" y1="180" x2="1144" y2="206" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="1060" y1="320" x2="1060" y2="336" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="lb2" x="988" y="198" fill="#475569">HTTP /api/open</text>
+    <text class="lb2" x="1156" y="198" fill="#475569">HTTP + 口令</text>
+    <text class="lb2" x="1072" y="334" fill="#475569">SQL</text>
+
+    <!-- 授权小结 -->
+    <rect x="898" y="432" width="324" height="230" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="912" y="456" fill="#1E293B">三种凭证（防越权）</text>
+    <circle cx="918" cy="480" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="484">H5 存件 → 手机号：必须在 users 表里注册过</text>
+    <circle cx="918" cy="506" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="510">H5 取件 → 6 位取件码：先凭码找到格，再核对该格</text>
+    <circle cx="918" cy="532" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="536">刷卡 → 卡 UID：格由后端按卡主算，报文格号忽略</text>
+    <text class="smt" x="912" y="566" fill="#64748B">三条都在后端判定，设备只执行 —— 所以换固件绕不过授权。</text>
+    <text class="smt" x="912" y="588" fill="#64748B">监控台与 /api/orders、/api/logs 要口令：订单里有取件码，</text>
+    <text class="smt" x="912" y="606" fill="#64748B">而取件码是能开柜的，不挡住的话整套授权当场作废。</text>
+    <text class="smt" x="912" y="632" fill="#64748B">取件不校验是谁来取 —— 码就是凭证，朋友拿码也能取走，</text>
+    <text class="smt" x="912" y="650" fill="#64748B">这是有意为之。</text>
+
+    <!-- ===== 跨侧箭头 ===== -->
+    <!-- 上行：ESP32 -> MQTT -> Flask -->
+    <line x1="422" y1="285" x2="596" y2="345" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <line x1="784" y1="335" x2="894" y2="255" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <text class="lb2" x="509" y="300" fill="#DC2626" text-anchor="middle">status / event</text>
+    <text class="lb2" x="845" y="282" fill="#DC2626" text-anchor="middle">投递</text>
+
+    <!-- 下行：Flask -> MQTT -> ESP32 -->
+    <line x1="894" y1="290" x2="784" y2="405" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-b)"/>
+    <line x1="596" y1="415" x2="426" y2="320" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-b)"/>
+    <text class="lb2" x="845" y="368" fill="#2563EB" text-anchor="middle">cmd / auth_result</text>
+    <text class="lb2" x="509" y="382" fill="#2563EB" text-anchor="middle">投递</text>
+
+    <!-- ===== 底部原理说明 ===== -->
+    <rect x="40" y="700" width="1200" height="160" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="60" y="726" fill="#1E293B">核心原理说明</text>
+    <circle cx="70" cy="752" r="2.6" fill="#0D9488"/>
+    <text class="todo" x="82" y="756">RFID 卡识别：MFRC522 发射 13.56 MHz 电磁场，卡内芯片无源取电并回传唯一 UID，作为身份凭证</text>
+    <circle cx="70" cy="782" r="2.6" fill="#7C3AED"/>
+    <text class="todo" x="82" y="786">MQTT 发布/订阅：设备与后端不直接互调，均接入 broker 按主题通信，实现松耦合与多设备并行</text>
+    <circle cx="70" cy="812" r="2.6" fill="#2563EB"/>
+    <text class="todo" x="82" y="816">开锁–反馈闭环：舵机模拟开锁，门磁检测真实门状态并回传 —— 后端不因为「命令发出去了」就认为存取成功</text>
+    <circle cx="70" cy="842" r="2.6" fill="#EA580C"/>
+    <text class="todo" x="82" y="846">两条入口共用同一授权逻辑：无论刷卡还是扫码，最终都收敛到「后端判定 → MQTT 下发 → 设备执行 → 门磁回执」</text>
+  </svg></body></html>

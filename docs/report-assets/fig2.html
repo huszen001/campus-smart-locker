@@ -1,0 +1,243 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  :root{
+    --ink:#1E293B; --sub:#475569; --mute:#64748B; --line:#CBD5E1;
+    --p1:#2563EB; --p1f:#EFF6FF; --p1b:#BFDBFE;
+    --p2:#0D9488; --p2f:#ECFDF5; --p2b:#99F6E4;
+    --p3:#7C3AED; --p3f:#F5F3FF; --p3b:#DDD6FE;
+    --p4:#EA580C; --p4f:#FFF7ED; --p4b:#FED7AA;
+    --p5:#DB2777; --p5f:#FDF2F8; --p5b:#FBCFE8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; padding:32px 24px 64px; background:#F1F5F9; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;}
+  header{max-width:1360px; margin:0 auto 28px;}
+  header h1{font-size:24px; margin:0 0 8px; letter-spacing:.5px;}
+  header p{margin:0; color:var(--mute); font-size:13.5px;}
+  header .meta{margin:10px 0 0; font-size:12.5px; color:var(--mute); line-height:1.8}
+  main{max-width:1360px; margin:0 auto;}
+  .fig{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 22px 16px; margin:0 0 28px; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  .fig h2{font-size:16px; margin:0 0 4px; letter-spacing:.5px;}
+  .fig .cap{font-size:12.5px; color:var(--mute); margin:0 0 14px; line-height:1.7;}
+  .fig svg{width:100%; height:auto; display:block;}
+  .note{font-size:12.5px; color:var(--sub); line-height:1.85; margin:14px 0 0; padding:12px 16px; background:#F8FAFC; border-left:3px solid var(--line); border-radius:0 8px 8px 0;}
+  .note b{color:var(--ink);}
+  .note ul{margin:8px 0 0; padding-left:20px}
+  .note li{margin:4px 0}
+  .warn{background:#FEF2F2; border-left-color:#FCA5A5}
+  .warn b{color:#B91C1C}
+
+  svg text{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;}
+  .sub-line{font-size:12.5px; fill:#64748B}
+  .grp-t{font-size:12.5px; font-weight:700}
+  .lb{font-size:10.5px; fill:#64748B}
+  .lb2{font-size:9.5px; fill:#64748B}
+  .nt{font-size:12.5px; font-weight:700}
+  .nts{font-size:11.5px; font-weight:700}
+  .nb{font-size:10px; fill:#475569}
+  .nbs{font-size:9.5px; fill:#475569}
+  .mt{font-size:11.5px; font-weight:700}
+  .todo{font-size:10px; fill:#334155}
+  .layer-t{font-size:14px; font-weight:700; fill:#FFFFFF}
+  .word{font-size:10px; fill:#334155}
+  .smt{font-size:9px; fill:#64748B}
+
+  @media print{
+    body{background:#fff; padding:0; margin:0}
+    header{padding:0 0 10px}
+    .fig{border:none; box-shadow:none; border-radius:0; padding:0; margin:0; page-break-after:always}
+    .fig:last-child{page-break-after:auto}
+    .note{background:#fff}
+    @page{size:A4 landscape; margin:10mm}
+  }
+
+html,body{margin:0;padding:0;background:#fff;}
+svg{display:block;width:1280.0px;height:900.0px;}
+</style></head><body><svg viewBox="0 0 1280 900" role="img" aria-label="系统总体架构图">
+    <text class="sub-line" x="180" y="40">上行：状态 / 事件 / 刷卡数据自下而上　　|　　下行：开门命令与授权结果自上而下</text>
+
+    <!-- ===== L4 交互层 ===== -->
+    <rect x="180" y="64" width="880" height="140" rx="12" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="92">交互层　Interaction</text>
+    <rect x="200" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="212" y="126" fill="#BE185D">H5 页面</text>
+    <text class="nbs" x="212" y="146">微信扫柜贴二维码打开</text>
+    <text class="nbs" x="212" y="162">存件 · 取件 · 注册 · 绑卡</text>
+    <text class="nbs" x="212" y="178">不存手机号到 localStorage</text>
+
+    <rect x="425" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="437" y="126" fill="#BE185D">网页监控台</text>
+    <text class="nbs" x="437" y="146">柜格状态 · 订单 · 日志</text>
+    <text class="nbs" x="437" y="162">每 2s 自动刷新</text>
+    <text class="nbs" x="437" y="178">需管理口令</text>
+
+    <rect x="650" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="662" y="126" fill="#BE185D">柜贴二维码（两种）</text>
+    <text class="nbs" x="662" y="146">总码 /poster/cabinet ｜ 柜格贴 /poster/&lt;box&gt;</text>
+    <text class="nbs" x="662" y="162">/qr/cabinet.png ｜ /qr/&lt;box&gt;.png</text>
+    <text class="nbs" x="662" y="178">均可 Ctrl+P 打印，与监控台分两页</text>
+
+    <rect x="875" y="102" width="165" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="887" y="126" fill="#BE185D">校园卡刷卡</text>
+    <text class="nbs" x="887" y="146">第二条免密路径</text>
+    <text class="nbs" x="887" y="162">读 UID 直接开柜</text>
+    <text class="nbs" x="887" y="178">格号由后端按卡主算</text>
+
+    <!-- ===== L3 后端层 ===== -->
+    <rect x="180" y="228" width="880" height="140" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="256">后端层　Backend</text>
+    <rect x="200" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="212" y="290" fill="#C2410C">用户管理</text>
+    <text class="nbs" x="212" y="310">注册 · 绑卡</text>
+    <text class="nbs" x="212" y="326">绑卡窗口 45s</text>
+    <text class="nbs" x="212" y="342">一次性，用完作废</text>
+
+    <rect x="358" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="370" y="290" fill="#C2410C">授权判定 · 定格</text>
+    <text class="nbs" x="370" y="310">手机号 / 取件码 / 卡 UID</text>
+    <text class="nbs" x="370" y="326">自动挑格 · 凭码找格</text>
+    <text class="nbs" x="370" y="342">防越权，见图 3</text>
+
+    <rect x="516" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="528" y="290" fill="#C2410C">订单状态机</text>
+    <text class="nbs" x="528" y="310">pending → opened</text>
+    <text class="nbs" x="528" y="326">→ done / failed</text>
+    <text class="nbs" x="528" y="342">超时兜底，见图 5</text>
+
+    <rect x="674" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="686" y="290" fill="#C2410C">MQTT 接入</text>
+    <text class="nbs" x="686" y="310">订阅 status / event</text>
+    <text class="nbs" x="686" y="326">发布 cmd / auth_result</text>
+    <text class="nbs" x="686" y="342">先落库再 publish</text>
+
+    <rect x="832" y="266" width="208" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="844" y="290" fill="#C2410C">审计日志 · 数据存储</text>
+    <text class="nbs" x="844" y="310">谁 · 何时 · 哪种方式 · 哪个格 · 成败</text>
+    <text class="nbs" x="844" y="326">SQLite 三张表：users / orders / audit</text>
+    <text class="nbs" x="844" y="342">在线判定只用后端收到的时刻</text>
+
+    <!-- ===== L2 传输层 ===== -->
+    <rect x="180" y="392" width="880" height="140" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="420">传输层　Transport</text>
+    <rect x="200" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="212" y="454" fill="#6D28D9">MQTT Broker</text>
+    <text class="nbs" x="212" y="474">Mosquitto 2.x</text>
+    <text class="nbs" x="212" y="490">监听 0.0.0.0:1883</text>
+    <text class="nbs" x="212" y="506">强制用户名密码</text>
+
+    <rect x="425" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="437" y="454" fill="#6D28D9">主题规范</text>
+    <text class="nbs" x="437" y="474">locker/locker1/cmd</text>
+    <text class="nbs" x="437" y="490">…/status　…/event</text>
+    <text class="nbs" x="437" y="506">…/auth_result</text>
+
+    <rect x="650" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="662" y="454" fill="#6D28D9">报文格式 JSON</text>
+    <text class="nbs" x="662" y="474">设备 ts 是开机秒数</text>
+    <text class="nbs" x="662" y="490">后端另存 last_seen</text>
+    <text class="nbs" x="662" y="506">只在心跳里刷新</text>
+
+    <rect x="875" y="430" width="165" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="887" y="454" fill="#6D28D9">Wi-Fi</text>
+    <text class="nbs" x="887" y="474">ESP32 接入</text>
+    <text class="nbs" x="887" y="490">每 10s 心跳保活</text>
+    <text class="nbs" x="887" y="506">断线重连</text>
+
+    <!-- ===== L1 设备层 ===== -->
+    <rect x="180" y="556" width="880" height="140" rx="12" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="584">设备层　Device</text>
+    <rect x="200" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="212" y="618" fill="#1D4ED8">ESP32 主控 ×1</text>
+    <text class="nbs" x="212" y="638">Wi-Fi + MQTT</text>
+    <text class="nbs" x="212" y="654">4 格状态机</text>
+    <text class="nbs" x="212" y="670">见图 4</text>
+
+    <rect x="350" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="362" y="618" fill="#1D4ED8">MFRC522 ×1</text>
+    <text class="nbs" x="362" y="638">柜体级 · 全柜共用</text>
+    <text class="nbs" x="362" y="654">SPI · 3.3V</text>
+    <text class="nbs" x="362" y="670">读 UID，不知是哪格</text>
+
+    <rect x="500" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="512" y="618" fill="#1D4ED8">SG90 舵机 ×1</text>
+    <text class="nbs" x="512" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="512" y="654">PWM · GPIO 13</text>
+    <text class="nbs" x="512" y="670">堵转约 700mA</text>
+
+    <rect x="650" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="662" y="618" fill="#1D4ED8">干簧管门磁 ×1</text>
+    <text class="nbs" x="662" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="662" y="654">GPIO 4 · 内部上拉</text>
+    <text class="nbs" x="662" y="670">另有 30s 报警</text>
+
+    <rect x="800" y="594" width="120" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="812" y="618" fill="#1D4ED8">HX711 ×1</text>
+    <text class="nbs" x="812" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="812" y="654">DT 27 · SCK 32</text>
+    <text class="nbs" x="812" y="670">不称重</text>
+
+    <rect x="930" y="594" width="110" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="942" y="618" fill="#1D4ED8">OLED ×1</text>
+    <text class="nbs" x="942" y="638">柜体级 · 4 格轮放</text>
+    <text class="nbs" x="942" y="654">软件 I²C</text>
+    <text class="nbs" x="942" y="670">SDA 25 · SCL 26</text>
+
+    <!-- 层间箭头：数据自下而上（三层间隙各一条） -->
+    <line x1="620" y1="552" x2="620" y2="538" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <line x1="620" y1="388" x2="620" y2="374" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <line x1="620" y1="224" x2="620" y2="210" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <text class="lb" x="632" y="550" fill="#475569">数据上行</text>
+    <text class="lb" x="632" y="386" fill="#475569">数据上行</text>
+    <text class="lb" x="632" y="222" fill="#475569">数据上行</text>
+
+    <!-- 侧栏：安全机制 -->
+    <rect x="1080" y="64" width="160" height="300" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="1096" y="92" fill="#1E293B">安全机制</text>
+    <circle cx="1100" cy="116" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="120">三种凭证：手机号 /</text>
+    <text class="smt" x="1110" y="134">取件码 / 卡 UID</text>
+    <circle cx="1100" cy="156" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="160">格号由后端算：</text>
+    <text class="smt" x="1110" y="174">挑格 / 找格 / 按卡主</text>
+    <circle cx="1100" cy="196" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="200">管理口令挡监控台</text>
+    <text class="smt" x="1110" y="214">与订单 / 日志接口</text>
+    <circle cx="1100" cy="236" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="240">扫码页不回手机号</text>
+    <text class="smt" x="1110" y="254">和取件码</text>
+    <circle cx="1100" cy="276" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="280">审计日志：成败都记</text>
+    <circle cx="1100" cy="302" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="306">失败路径兜底：</text>
+    <text class="smt" x="1110" y="320">15s / 60s 双超时</text>
+    <circle cx="1100" cy="342" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="346">门开超 30s 报警</text>
+
+    <!-- 侧栏：协议与数据 -->
+    <rect x="1080" y="392" width="160" height="304" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="1096" y="420" fill="#1E293B">协议与数据</text>
+    <circle cx="1100" cy="444" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="448">MQTT 3.1.1 · JSON</text>
+    <circle cx="1100" cy="472" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="476">HTTP RESTful</text>
+    <text class="smt" x="1110" y="490">GET / POST</text>
+    <circle cx="1100" cy="512" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="516">ISO14443A（刷卡）</text>
+    <circle cx="1100" cy="540" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="544">SPI（读卡器）</text>
+    <text class="smt" x="1110" y="558">HSPI 映射</text>
+    <circle cx="1100" cy="580" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="584">软件 I²C（OLED）</text>
+    <text class="smt" x="1110" y="598">不挑脚，几十 ms 刷屏</text>
+    <circle cx="1100" cy="620" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="624">PWM（舵机）</text>
+    <circle cx="1100" cy="648" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="652">HX711 两线（DT/SCK）</text>
+    <text class="smt" x="1110" y="666">24 位读数 + 第 25 脉冲</text>
+    <circle cx="1100" cy="678" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="682">SQLite 文件库</text>
+
+    <!-- 侧栏虚线连接 -->
+    <line x1="1080" y1="300" x2="1064" y2="300" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <line x1="1080" y1="460" x2="1064" y2="460" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="4 3"/>
+  </svg></body></html>

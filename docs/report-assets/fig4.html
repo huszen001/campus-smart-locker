@@ -1,0 +1,119 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  :root{
+    --ink:#1E293B; --sub:#475569; --mute:#64748B; --line:#CBD5E1;
+    --p1:#2563EB; --p1f:#EFF6FF; --p1b:#BFDBFE;
+    --p2:#0D9488; --p2f:#ECFDF5; --p2b:#99F6E4;
+    --p3:#7C3AED; --p3f:#F5F3FF; --p3b:#DDD6FE;
+    --p4:#EA580C; --p4f:#FFF7ED; --p4b:#FED7AA;
+    --p5:#DB2777; --p5f:#FDF2F8; --p5b:#FBCFE8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; padding:32px 24px 64px; background:#F1F5F9; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;}
+  header{max-width:1360px; margin:0 auto 28px;}
+  header h1{font-size:24px; margin:0 0 8px; letter-spacing:.5px;}
+  header p{margin:0; color:var(--mute); font-size:13.5px;}
+  header .meta{margin:10px 0 0; font-size:12.5px; color:var(--mute); line-height:1.8}
+  main{max-width:1360px; margin:0 auto;}
+  .fig{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 22px 16px; margin:0 0 28px; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  .fig h2{font-size:16px; margin:0 0 4px; letter-spacing:.5px;}
+  .fig .cap{font-size:12.5px; color:var(--mute); margin:0 0 14px; line-height:1.7;}
+  .fig svg{width:100%; height:auto; display:block;}
+  .note{font-size:12.5px; color:var(--sub); line-height:1.85; margin:14px 0 0; padding:12px 16px; background:#F8FAFC; border-left:3px solid var(--line); border-radius:0 8px 8px 0;}
+  .note b{color:var(--ink);}
+  .note ul{margin:8px 0 0; padding-left:20px}
+  .note li{margin:4px 0}
+  .warn{background:#FEF2F2; border-left-color:#FCA5A5}
+  .warn b{color:#B91C1C}
+
+  svg text{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;}
+  .sub-line{font-size:12.5px; fill:#64748B}
+  .grp-t{font-size:12.5px; font-weight:700}
+  .lb{font-size:10.5px; fill:#64748B}
+  .lb2{font-size:9.5px; fill:#64748B}
+  .nt{font-size:12.5px; font-weight:700}
+  .nts{font-size:11.5px; font-weight:700}
+  .nb{font-size:10px; fill:#475569}
+  .nbs{font-size:9.5px; fill:#475569}
+  .mt{font-size:11.5px; font-weight:700}
+  .todo{font-size:10px; fill:#334155}
+  .layer-t{font-size:14px; font-weight:700; fill:#FFFFFF}
+  .word{font-size:10px; fill:#334155}
+  .smt{font-size:9px; fill:#64748B}
+
+  @media print{
+    body{background:#fff; padding:0; margin:0}
+    header{padding:0 0 10px}
+    .fig{border:none; box-shadow:none; border-radius:0; padding:0; margin:0; page-break-after:always}
+    .fig:last-child{page-break-after:auto}
+    .note{background:#fff}
+    @page{size:A4 landscape; margin:10mm}
+  }
+
+html,body{margin:0;padding:0;background:#fff;}
+svg{display:block;width:940.0px;height:700.0px;}
+</style></head><body><svg viewBox="0 0 940 700" role="img" aria-label="柜格状态机">
+
+    <text class="sub-line" x="350" y="40">状态由「锁状态 × 压力传感器读数」共同定义，不引入故障态</text>
+
+    <!-- 上电 · 无物 -->
+    <text class="smt" x="470" y="60" text-anchor="middle" fill="#475569">上电 · 压力传感器测得无物</text>
+    <line x1="470" y1="68" x2="470" y2="84" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- IDLE -->
+    <rect x="350" y="90" width="240" height="80" rx="14" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+    <text class="nt" x="470" y="122" text-anchor="middle" fill="#0F766E">IDLE　空闲</text>
+    <text class="nbs" x="470" y="144" text-anchor="middle">门关 · 已上锁 · 无物</text>
+    <text class="nbs" x="470" y="160" text-anchor="middle">常态，可接受存件</text>
+
+    <!-- IDLE -> OPEN（左道下行） -->
+    <line x1="400" y1="170" x2="400" y2="296" stroke="#2563EB" stroke-width="2" marker-end="url(#a-b)"/>
+    <text class="nb" x="470" y="212" text-anchor="middle" fill="#2563EB">收到 cmd:open（存件）</text>
+
+    <!-- OPEN -> IDLE（右道上行） -->
+    <line x1="540" y1="296" x2="540" y2="174" stroke="#0D9488" stroke-width="2" marker-end="url(#a-t)"/>
+    <text class="nb" x="470" y="268" text-anchor="middle" fill="#0F766E">关门且测得空</text>
+
+    <!-- OPEN -->
+    <rect x="350" y="300" width="240" height="80" rx="14" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+    <text class="nt" x="470" y="332" text-anchor="middle" fill="#1D4ED8">OPEN　门已开</text>
+    <text class="nbs" x="470" y="354" text-anchor="middle">已解锁，等用户开门</text>
+    <text class="nbs" x="470" y="370" text-anchor="middle">短暂中间态</text>
+
+    <!-- OPEN -> OCCUPIED（左道下行） -->
+    <line x1="400" y1="380" x2="400" y2="506" stroke="#0D9488" stroke-width="2" marker-end="url(#a-t)"/>
+    <text class="nb" x="470" y="422" text-anchor="middle" fill="#0F766E">关门且测得有物</text>
+
+    <!-- OCCUPIED -> OPEN（右道上行） -->
+    <line x1="540" y1="506" x2="540" y2="384" stroke="#2563EB" stroke-width="2" marker-end="url(#a-b)"/>
+    <text class="nb" x="470" y="478" text-anchor="middle" fill="#2563EB">收到 cmd:open（取件）</text>
+
+    <!-- OCCUPIED -->
+    <rect x="350" y="510" width="240" height="80" rx="14" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+    <text class="nt" x="470" y="542" text-anchor="middle" fill="#0F766E">OCCUPIED　有物品</text>
+    <text class="nbs" x="470" y="564" text-anchor="middle">门关 · 已上锁 · 有物</text>
+    <text class="nbs" x="470" y="580" text-anchor="middle">只进不出，见图注</text>
+
+    <!-- 上电 · 有物 -->
+    <line x1="470" y1="628" x2="470" y2="598" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="470" y="648" text-anchor="middle" fill="#475569">上电 · 压力传感器测得有物</text>
+
+    <!-- 左侧注：门开超时 -->
+    <rect x="26" y="300" width="280" height="132" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="40" y="326" fill="#B45309">⚠️ 门开超时只报警，不迁移</text>
+    <text class="smt" x="40" y="350" fill="#475569">OPEN 超过 30 秒未关门</text>
+    <text class="smt" x="40" y="368" fill="#475569">→ 上报 error(door_left_open)</text>
+    <text class="smt" x="40" y="390" fill="#475569">但状态仍留在 OPEN 等用户 ——</text>
+    <text class="smt" x="40" y="408" fill="#475569">强行转移反而会把人锁在外面。</text>
+    <text class="smt" x="40" y="426" fill="#64748B">后端另有 15s / 60s 双超时兜底。</text>
+
+    <!-- 右侧注：OCCUPIED 死胡同 -->
+    <rect x="634" y="300" width="280" height="132" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="648" y="326" fill="#0F766E">OCCUPIED 只进不出</text>
+    <text class="smt" x="648" y="350" fill="#475569">只能靠一次正常取件</text>
+    <text class="smt" x="648" y="368" fill="#475569">（OCCUPIED → OPEN → IDLE）</text>
+    <text class="smt" x="648" y="386" fill="#475569">才会离开。这正是「柜里有东西</text>
+    <text class="smt" x="648" y="404" fill="#475569">就存不进去」这个防呆的来源 ——</text>
+    <text class="smt" x="648" y="422" fill="#64748B">它是状态机自然带来的，不是额外写的判断。</text>
+  </svg></body></html>

@@ -1,0 +1,7 @@
+.venv/
+*.db
+*.db.bak-*
+__pycache__/
+.serial-tmp/
+docs/report-assets/preview.pdf
+docs/report-assets/preview/

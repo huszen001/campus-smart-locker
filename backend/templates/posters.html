@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>柜贴 · 全部</title>
+<style>
+  :root { --fg:#1b2333; --dim:#7b8798; --line:#e3e7ef; --blue:#0a84ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 20px; background:#f2f4f8; color:var(--fg);
+         font:15px/1.7 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+  h1 { font-size:19px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:22px; }
+  h2 { font-size:14px; color:var(--dim); font-weight:600; margin:26px 0 10px; }
+  .grid { display:flex; flex-wrap:wrap; gap:14px; }
+
+  a.card { display:block; width:190px; background:#fff; border-radius:14px; padding:16px;
+           text-decoration:none; color:inherit; box-shadow:0 4px 16px rgba(20,30,60,.07); }
+  a.card:hover { box-shadow:0 6px 22px rgba(20,30,60,.14); }
+  a.card img { width:100%; height:auto; display:block; border-radius:6px; }
+  a.card .cap { margin-top:10px; font-weight:600; font-size:14px; }
+  a.card small { display:block; color:var(--dim); font-size:12px; font-weight:400; }
+  a.card.pick { width:250px; }
+
+  .note { margin-top:28px; padding:14px 16px; background:#fff; border-radius:12px;
+          color:var(--dim); font-size:13px; max-width:640px; }
+  .note code { color:var(--fg); }
+</style>
+</head>
+<body>
+  <h1>柜贴二维码</h1>
+  <div class="sub">点开任意一张，按 <b>Ctrl+P</b> 打印，沿卡片边剪下贴到柜体上。</div>
+
+  <h2>柜体总码 —— 只有一张，贴在柜体正面</h2>
+  <div class="grid">
+    <a class="card pick" href="/poster/cabinet">
+      <img src="/qr/cabinet.png" alt="柜体总码">
+      <div class="cap">柜体总码<small>存件自动分配空格 · 取件凭码找格</small></div>
+    </a>
+  </div>
+
+  <h2>柜格贴 —— 每格一张，贴在该格柜门上</h2>
+  <div class="grid">
+    {% for b in boxes %}
+    <a class="card" href="/poster/{{ b }}">
+      <img src="/qr/{{ b }}.png" alt="{{ b }} 号柜格">
+      <div class="cap">{{ b }} 号柜格<small>存件固定放进这一格</small></div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="note">
+    两种码的差别只在<b>格号从哪来</b>：总码不带格号，存件时后端从在线的空格里挑一个
+    （挑中的格号会回显在手机页面上）；柜格贴带格号，存件就进那一格。
+    <br>
+    贴纸上的地址是<b>当前这台机器的局域网 IP</b>（<code>{{ request.host }}</code>）。
+    换了网络就得重新打印 —— 或者把二维码指向一个固定的域名。
+  </div>
+</body>
+</html>

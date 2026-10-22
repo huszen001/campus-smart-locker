@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>智能寄存柜 · {% if box %}格 {{ box }}{% else %}扫码存取{% endif %}</title>
+<style>
+  :root { --bg:#f2f4f8; --card:#fff; --line:#e3e7ef; --fg:#1b2333; --dim:#7b8798;
+          --blue:#0a84ff; --ok:#34c759; --warn:#ff9f0a; --err:#ff453a; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--fg);
+         font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         display:flex; flex-direction:column; align-items:center; padding:24px 16px; }
+  .card { width:100%; max-width:400px; background:var(--card); border-radius:18px;
+          padding:22px 20px; box-shadow:0 6px 24px rgba(20,30,60,.07); }
+
+  .bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .bar h1 { font-size:16px; margin:0; }
+  .state { margin-left:auto; font-size:12.5px; font-weight:600; padding:4px 11px;
+           border-radius:999px; white-space:nowrap; }
+  .IDLE      { background:#eef1f6; color:var(--dim); }
+  .OPEN      { background:#fff4e2; color:var(--warn); }
+  .OCCUPIED  { background:#e7f8ec; color:var(--ok); }
+  .ERROR     { background:#ffeceb; color:var(--err); }
+  .UNKNOWN   { background:#eef1f6; color:var(--dim); }
+  .OFFLINE   { background:#ffeceb; color:var(--err); }
+
+  .view { display:none; }
+  .view.active { display:block; }
+
+  .boxno { display:flex; align-items:baseline; gap:9px; padding:20px; margin-bottom:18px;
+           background:#f7f9fc; border-radius:14px; }
+  .boxno b { font-size:40px; line-height:1; letter-spacing:-.02em; }
+  .boxno span { color:var(--dim); font-size:13px; }
+
+  button { font-family:inherit; cursor:pointer; border:0; transition:opacity .15s; }
+  button:active { opacity:.75; }
+  button:disabled { opacity:.4; }
+
+  /* 首页的两个大按钮：主标题 + 一句说明 */
+  .big { width:100%; display:flex; flex-direction:column; align-items:flex-start; gap:3px;
+         padding:18px 20px; border-radius:14px; color:#fff; font-size:17px; font-weight:600;
+         text-align:left; margin-bottom:12px; }
+  .big small { font-size:12.5px; font-weight:400; opacity:.82; }
+  .store  { background:var(--blue); }
+  .pickup { background:var(--ok); }
+  .bind   { background:#5e5ce6; }
+  .reg    { background:#3a4252; }
+
+  .back { background:none; color:var(--dim); font-size:13.5px; padding:0 0 16px; }
+  h2 { font-size:15px; margin:0 0 4px; }
+  .hint { color:var(--dim); font-size:12.5px; margin-bottom:14px; }
+  label { display:block; font-size:13px; color:var(--dim); margin-bottom:7px; }
+  input { width:100%; padding:14px 15px; font-size:16px; font-family:inherit;
+          border:1px solid var(--line); border-radius:12px; outline:none; background:#fafbfd; }
+  input:focus { border-color:var(--blue); background:#fff; }
+  input + label { margin-top:14px; }
+  #code { letter-spacing:.35em; font-size:20px; text-align:center; font-weight:600; }
+  .go { width:100%; margin-top:16px; padding:15px 0; font-size:16px; font-weight:600;
+        border-radius:12px; color:#fff; }
+  .link { width:100%; background:none; color:var(--dim); font-size:13px; padding:14px 0 2px; }
+
+  .block { border-top:1px solid var(--line); margin-top:22px; padding-top:20px; }
+
+  .msg { margin-top:16px; padding:13px 15px; border-radius:12px; font-size:14px; display:none; }
+  .msg.show { display:block; }
+  .msg.ok  { background:#e7f8ec; color:#1c7a3a; }
+  .msg.bad { background:#ffeceb; color:#a8271e; }
+  .codebox { display:none; margin-top:16px; padding:20px; border-radius:14px;
+             background:#eef6ff; border:1px dashed #9fc9f5; text-align:center; }
+  .codebox.show { display:block; }
+  .codebox .tip { color:var(--dim); font-size:13px; }
+  .codebox .num { font-size:36px; font-weight:700; letter-spacing:.2em;
+                  color:#0a5bd3; margin:8px 0; font-variant-numeric:tabular-nums; }
+  .codebox .note { color:var(--dim); font-size:12.5px; }
+  .pay { margin-top:16px; padding:14px 15px; border-radius:12px; font-size:13.5px;
+         background:#f7f9fc; color:var(--dim); }
+  .pay b { color:var(--fg); }
+  .bal { font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .bal.neg { color:var(--err); }
+  .payrow { display:flex; gap:8px; margin-top:14px; }
+  .payrow button { flex:1; padding:12px 0; border-radius:11px; font-size:14.5px;
+                   font-weight:600; color:#fff; background:var(--blue); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="bar">
+      <h1>校园智能寄存柜</h1>
+      <span class="state UNKNOWN" id="state">读取中…</span>
+    </div>
+
+    <!-- 首页：只放两个动作 -->
+    <div class="view active" id="v-home">
+      {% if box %}
+        <div class="boxno"><b>{{ box }}</b><span>号柜格</span></div>
+      {% else %}
+        <!-- 柜体总码：没有格号。存件时后端挑一个空格并回显，取件时凭码找格 -->
+        <div class="boxno" style="padding:14px 20px"><b style="font-size:22px">本柜</b>
+          <span>存件自动分配空格 · 取件凭码即可</span></div>
+      {% endif %}
+      <button class="big store" data-go="store">存 件
+        <small>放入物品关好门，会给你一个取件码</small></button>
+      <button class="big pickup" data-go="pickup">取 件
+        <small>用存件时拿到的 6 位取件码开柜</small></button>
+      <button class="link" data-go="me">我的 · 余额 / 绑卡 / 注册</button>
+    </div>
+
+    <!-- 存件 -->
+    <div class="view" id="v-store">
+      <button class="back" data-go="home">← 返回</button>
+      <h2>存 件</h2>
+      <div class="hint">放入物品后关好门，系统会给你一个取件码</div>
+      <div class="pay" id="payrule"></div>
+      <label for="phone">手机号</label>
+      <input id="phone" type="tel" inputmode="numeric" maxlength="11"
+             placeholder="请输入 11 位手机号">
+      <button class="go store" id="btnStore">存 件</button>
+      <div class="codebox" id="codebox">
+        <div class="tip">取件码（请记住，取件时要用）</div>
+        <div class="num" id="codetext"></div>
+        <div class="note" id="codewhere" style="display:none"></div>
+        <div class="note">物品放好后关上门即完成存件</div>
+      </div>
+    </div>
+
+    <!-- 取件 -->
+    <div class="view" id="v-pickup">
+      <button class="back" data-go="home">← 返回</button>
+      <h2>取 件</h2>
+      <div class="hint">输入存件时拿到的 6 位取件码</div>
+      <label for="code">取件码</label>
+      <input id="code" type="tel" inputmode="numeric" maxlength="6" placeholder="6 位数字">
+      <button class="go pickup" id="btnPickup">取 件</button>
+    </div>
+
+    <!-- 我的：只放余额与充值。绑卡、注册各自是独立的一页，从下面两个链接进去 -->
+    <div class="view" id="v-me">
+      <button class="back" data-go="home">← 返回</button>
+      <h2>我的</h2>
+      <label for="mphone">手机号</label>
+      <input id="mphone" type="tel" inputmode="numeric" maxlength="11" placeholder="11 位手机号">
+      <div class="hint" id="balHint">填上手机号就能看到余额</div>
+      <div class="bal" id="bal"></div>
+      <div class="hint" style="margin-top:8px">
+        费用从<b>存件人</b>的余额扣。余额不足会把账挂成负数，
+        欠费期间不能再存件，充值后恢复。
+      </div>
+      <div class="payrow">
+        <button data-amt="10">充 ¥10</button>
+        <button data-amt="20">充 ¥20</button>
+        <button data-amt="50">充 ¥50</button>
+      </div>
+      <div class="hint" style="margin-top:9px">
+        <b>模拟支付</b>：课设不接真实支付通道，点一下就到账，不产生任何真实交易。
+      </div>
+
+      <div class="block">
+        <button class="link" data-go="bind">绑定校园卡 ›</button>
+        <button class="link" data-go="reg">还没注册？点这里注册 ›</button>
+      </div>
+    </div>
+
+    <!-- 绑卡：手机号 + 一次刷卡，就这一件事 -->
+    <div class="view" id="v-bind">
+      <button class="back" data-go="me">← 返回</button>
+      <h2>绑定校园卡</h2>
+      <div class="hint">填上手机号，再拿卡在感应区刷一下</div>
+      <label for="bphone">手机号</label>
+      <input id="bphone" type="tel" inputmode="numeric" maxlength="11" placeholder="11 位手机号">
+      <div class="hint" id="cardHint">刷一次卡，就能用卡直接开柜</div>
+      <button class="go bind" id="btnBind">绑定校园卡</button>
+    </div>
+
+    <!-- 注册：新用户第一次存件前用 -->
+    <div class="view" id="v-reg">
+      <button class="back" data-go="me">← 返回</button>
+      <h2>注册</h2>
+      <div class="hint">存件前要先注册手机号；只取件不用注册</div>
+      <label for="rname">姓名</label>
+      <input id="rname" maxlength="20" placeholder="你的姓名">
+      <label for="rphone">手机号</label>
+      <input id="rphone" type="tel" inputmode="numeric" maxlength="11" placeholder="11 位手机号">
+      <button class="go reg" id="btnReg">注 册</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+<script>
+// 扫柜格贴 -> 数字；扫柜体总码 -> null（存件时后端挑格、取件时凭码找格）。
+// 用 tojson 而不是直接塞 —— Jinja 渲染 None 出来的是 "None"，那是 Python 的字面量，
+// JS 里是个未定义变量名，整段脚本会当场报错、页面全废。
+const BOX = {{ box|tojson }};
+// 页面正在盯哪一格的状态。总码模式下是后端分配之后才知道的。
+let viewBox = BOX;
+const $ = id => document.getElementById(id);
+const STATE_CN = { IDLE:'空闲', OPEN:'门已开', OCCUPIED:'有物品',
+                   ERROR:'故障', UNKNOWN:'未连接', OFFLINE:'设备离线' };
+
+// 计费参数由后端注入 —— 页面不能自己写死"30 分钟"，
+// 否则演示时把阈值压到几秒，页面上就在骗老师。
+const P = {{ pricing | tojson }};
+const yuan = fen => (fen / 100).toFixed(2);
+$('payrule').innerHTML =
+  `存件后 <b>{{ human(pricing.free) }}</b>内取走免费，` +
+  `之后每满 <b>{{ human(pricing.unit) }}</b>收 <b>¥${yuan(P.fee)}</b>，` +
+  `单次封顶 <b>¥${yuan(P.max)}</b>。费用从存件人余额扣。`;
+
+/* ------------------ 视图切换 ------------------ */
+function go(v) {
+  document.querySelectorAll('.view')
+    .forEach(e => e.classList.toggle('active', e.id === 'v-' + v));
+  $('msg').className = 'msg';                 // 换页时别留着上一页的提示
+  if (v === 'me' || v === 'bind') refreshCard();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-go]')
+  .forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+
+/* ------------------ 手机号：一个值，三处输入 ------------------ */
+// 存件页 / 我的页 / 绑卡页各有一个手机号框，其实是同一个身份，改动要同步。
+// （注册页的 rphone 故意不在里面：注册的可能是另一个人。）
+//
+// 故意只放内存、不写 localStorage：这是**共用柜子**，页面每次打开都该是干净的。
+// 存下来的话，下一个人扫同一个码，输入框里就躺着上一个人的手机号。
+const PHONE_INPUTS = ['phone', 'mphone', 'bphone'];
+let phoneVal = '';
+
+function setPhone(v, from) {
+  phoneVal = v;
+  PHONE_INPUTS.forEach(id => {
+    if (id !== from) $(id).value = v;
+  });
+}
+function getPhone() { return phoneVal; }
+
+PHONE_INPUTS.forEach(id => {
+  const el = $(id);
+  el.addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+    setPhone(e.target.value, id);
+  });
+  el.addEventListener('change', () => refreshCard());
+});
+$('code').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+});
+$('rphone').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+});
+
+function say(text, kind) {
+  const m = $('msg');
+  m.textContent = text;
+  m.className = 'msg show ' + kind;
+}
+
+/* ------------------ 柜格状态 ------------------ */
+let watching = null;          // 正在等的订单号
+let feeWaits = 0;             // 取件单 done 了但还没落账，最多再等几轮
+
+// 取件订单变 done 和"扣费落账"是两条独立语句，中间可能被这一轮轮询撞上。
+// 不等的话会显示成"本次免费"—— 明明刚扣了钱，那是最糟的一种错。
+function finishPickup(fen) {
+  watching = null;
+  if (fen > 0) {
+    say(`取件成功，本次费用 ¥${yuan(fen)}`, 'ok');
+  } else {
+    say('取件成功，在免费时长内，本次不收费', 'ok');
+  }
+}
+
+async function refresh() {
+  try {
+    const boxes = await (await fetch('/api/boxes')).json();
+    const el = $('state');
+    if (viewBox === null) {
+      // 总码模式：还没有"这一格"，显示整柜的在线情况。
+      // 不能拿 boxes[0] 冒充 —— 那是在拿 1 号格的状态替整个柜子说话。
+      const on = boxes.filter(b => b.online).length;
+      el.textContent = `在线 ${on}/${boxes.length}`;
+      el.className = 'state ' + (on ? 'OCCUPIED' : 'OFFLINE');
+    } else {
+      const b = boxes.find(x => x.box === viewBox);
+      if (b) {
+        // 设备掉线时状态是陈旧值，别让它骗人
+        const key = b.online ? b.state : 'OFFLINE';
+        el.textContent = STATE_CN[key] || key;
+        el.className = 'state ' + key;
+      }
+    }
+  } catch { /* 轮询失败不打扰用户 */ return; }
+
+  // 开门是异步的：命令发出去不代表门真开了。盯着自己那单，
+  // 判失败了得告诉用户，别让他对着关着的门干等。
+  if (watching) {
+    try {
+      // 只查自己那一单。绝不能拉 /api/orders —— 那是给监控台的，里面带着
+      // 所有人的手机号和取件码，而扫码页是给所有人看的，等于白送。
+      const o = await (await fetch('/api/order/' + watching)).json();
+      if (o.status === 'failed') {
+        // failed 不止"门没开"这一种了：门压根没开、开了没关（超时）、
+        // 关了但秤说东西没放进去 / 没拿走 —— 三种都会落到这里。
+        // 这一页分不出是哪一种（后端没把原因给它），所以别硬说是哪一种。
+        say('这次没成功（门没开，或东西没放进去 / 没拿走），请重试或联系管理员', 'bad');
+        watching = null;
+      } else if (o && o.status === 'done') {
+        if (o.action === 'pickup' && o.fee_fen === null && feeWaits < 3) {
+          feeWaits++;                       // 再等一轮，别把"还没扣"当成"不扣"
+        } else if (o.action === 'pickup') {
+          finishPickup(o.fee_fen || 0);
+        } else {
+          watching = null;                  // 存件单：费用等取件时才结算
+        }
+      }
+    } catch { /* 同上 */ }
+  }
+}
+
+async function call(body, btn, okText) {
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/open', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      // 402 = 欠费被拦；存件 403 = 这个手机号没注册。
+      // 这两种都能就地解决，所以把人送到能解决它的那一页，别只丢一句话让他自己找。
+      // 取件的 403 是"取件码不对"，那是没得救的，跳页只会更糊涂 —— 只认存件那条。
+      if (res.status === 402) {
+        go('me');
+      } else if (res.status === 403 && body.action === 'store') {
+        $('rphone').value = getPhone();     // 顺手填上，省得他再敲一遍
+        go('reg');
+      }
+      say(data.msg || '操作失败', 'bad');
+      return null;
+    }
+    say(okText, 'ok');
+    if (data.order) { watching = data.order; feeWaits = 0; }
+    setTimeout(refresh, 1500);
+    setTimeout(refresh, 4000);
+    return data;
+  } catch {
+    say('网络异常，请稍后重试', 'bad');
+    return null;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// 总码模式下**不带** box：带了就等于每次都存同一格，第二个人直接撞"格里有东西"。
+// 格由后端挑，挑中的号回在 data.box 上。
+const withBox = body => BOX === null ? body : { ...body, box: BOX };
+
+$('btnStore').onclick = async () => {
+  const phone = getPhone();
+  if (!/^1\d{10}$/.test(phone)) return say('请输入正确的 11 位手机号', 'bad');
+  const data = await call(withBox({ action: 'store', phone }),
+                          $('btnStore'), '正在开门…请放入物品后关好门');
+  if (data) {
+    $('codetext').textContent = data.code;
+    $('codebox').className = 'codebox show';
+    $('code').value = data.code;          // 顺手填上，方便当场演示取件
+    if (BOX === null && data.box) {
+      // 总码模式下格号是后端挑的，必须告诉用户挑中了哪一格 ——
+      // 不然柜子响了一声，他不知道该去开哪个门。
+      viewBox = data.box;
+      say(`正在开门…请把物品放进 ${data.box} 号柜格后关好门`, 'ok');
+      $('codewhere').textContent = `存放位置：${data.box} 号柜格`;
+      $('codewhere').style.display = '';
+    }
+  }
+};
+
+$('btnPickup').onclick = async () => {
+  const code = $('code').value.trim();
+  if (!/^\d{6}$/.test(code)) return say('请输入 6 位取件码', 'bad');
+  const data = await call(withBox({ action: 'pickup', code }),
+                          $('btnPickup'), '正在开门…请取出物品后关好门');
+  if (data) {
+    if (data.box) {
+      viewBox = data.box;
+      // 凭码找格是后端做的事，用户只给了码 —— 得把找出来的格号告诉他，
+      // 不然他站在柜子前面不知道哪个门在弹。
+      if (BOX === null) say(`物品在 ${data.box} 号柜格，正在开门`, 'ok');
+    }
+  }
+};
+
+/* ------------------ 绑卡 ------------------ */
+// 后端收到 card_scan 时只知道一个 UID，不知道卡是谁的，所以得页面先认领
+// 手机号（后端记 45 秒窗口），用户再刷卡，两边才配得上。
+// 换了手机号/没查到，就得把上一轮的余额擦掉 ——
+// 留着的话，「我的」页会显示别人的余额。
+function clearBal(text) {
+  $('bal').textContent = '';
+  $('bal').className = 'bal';
+  $('balHint').textContent = text;
+}
+
+async function refreshCard() {
+  // 读共用值而不是读某个框：这个函数现在被「我的」和「绑卡」两页共用，
+  // 页面上那个框不一定就是用户刚才敲的那个。
+  const phone = getPhone().trim();
+  const hint = $('cardHint');
+  const btn = $('btnBind');
+  if (!/^1\d{10}$/.test(phone)) {
+    hint.textContent = '填上手机号，就能把卡绑到它上面';
+    btn.disabled = true;
+    return clearBal('填上手机号就能看到余额');
+  }
+  try {
+    const u = await (await fetch('/api/user?phone=' + encodeURIComponent(phone))).json();
+    if (!u.registered) {
+      hint.textContent = '这个手机号还没注册，回上一页点「注册」';
+      btn.disabled = true;
+      return clearBal('这个手机号还没注册，请先注册');
+    }
+    btn.disabled = !!u.card_uid;
+    hint.textContent = u.card_uid
+      ? `已绑定 ${u.card_uid} —— 刷这张卡也能开柜`
+      : `${u.name}，还没绑卡`;
+
+    const bal = u.balance_fen || 0;
+    $('bal').textContent = '¥' + yuan(bal);
+    $('bal').className = 'bal' + (bal < 0 ? ' neg' : '');
+    $('balHint').textContent = bal < 0 ? '已欠费，充值后才能再存件' : '存件扣费用这张卡（手机号）的余额';
+  } catch { /* 拉不到就保持原样 */ }
+}
+
+$('btnBind').onclick = async () => {
+  const phone = getPhone().trim();
+  const res = await fetch('/api/bind/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone })
+  });
+  const d = await res.json();
+  if (!d.ok) { say(d.msg, 'bad'); return refreshCard(); }
+  say(d.msg, 'ok');
+  $('btnBind').disabled = true;
+
+  const until = Date.now() + (d.window || 45) * 1000;
+  const timer = setInterval(async () => {
+    const u = await (await fetch('/api/user?phone=' + encodeURIComponent(phone))).json();
+    if (u.card_uid) {
+      clearInterval(timer);
+      say(`绑定成功：${u.card_uid}`, 'ok');
+      refreshCard();
+    } else if (Date.now() > until) {
+      clearInterval(timer);
+      say('没等到刷卡，再试一次', 'bad');
+      refreshCard();
+    }
+  }, 1500);
+};
+
+/* ------------------ 充值（模拟支付） ------------------ */
+document.querySelectorAll('.payrow button').forEach(b => {
+  b.onclick = async () => {
+    const phone = getPhone().trim();
+    if (!/^1\d{10}$/.test(phone)) return say('先在上面填上手机号', 'bad');
+    b.disabled = true;
+    try {
+      const res = await fetch('/api/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, amount: b.dataset.amt })
+      });
+      const d = await res.json();
+      if (!d.ok) return say(d.msg || '充值失败', 'bad');
+      say(`充值成功，余额 ¥${yuan(d.balance_fen)}`, 'ok');
+      refreshCard();
+    } catch {
+      say('网络异常，请稍后重试', 'bad');
+    } finally {
+      b.disabled = false;
+    }
+  };
+});
+
+/* ------------------ 注册 ------------------ */
+$('btnReg').onclick = async () => {
+  const name = $('rname').value.trim();
+  const phone = $('rphone').value.trim();
+  if (!name) return say('请填姓名', 'bad');
+  if (!/^1\d{10}$/.test(phone)) return say('请输入正确的 11 位手机号', 'bad');
+
+  const res = await fetch('/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, phone })
+  });
+  const d = await res.json();
+  if (!d.ok) return say(d.msg, 'bad');
+
+  setPhone(phone);                        // 注册完同步到存件/绑卡页，省得再敲一遍
+  go('me');                               // 回「我的」：那儿看得见余额，也是去「存件」的门口
+  say(d.msg + '，现在可以存件了', 'ok');   // 得在 go() 之后 —— go() 会清掉页面上的提示
+};
+
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

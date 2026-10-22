@@ -1,0 +1,199 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+
+  :root{
+    --ink:#1E293B; --sub:#475569; --mute:#64748B; --line:#CBD5E1;
+    --p1:#2563EB; --p1f:#EFF6FF; --p1b:#BFDBFE;
+    --p2:#0D9488; --p2f:#ECFDF5; --p2b:#99F6E4;
+    --p3:#7C3AED; --p3f:#F5F3FF; --p3b:#DDD6FE;
+    --p4:#EA580C; --p4f:#FFF7ED; --p4b:#FED7AA;
+    --p5:#DB2777; --p5f:#FDF2F8; --p5b:#FBCFE8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; padding:32px 24px 64px; background:#F1F5F9; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;}
+  header{max-width:1360px; margin:0 auto 28px;}
+  header h1{font-size:24px; margin:0 0 8px; letter-spacing:.5px;}
+  header p{margin:0; color:var(--mute); font-size:13.5px;}
+  header .meta{margin:10px 0 0; font-size:12.5px; color:var(--mute); line-height:1.8}
+  main{max-width:1360px; margin:0 auto;}
+  .fig{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 22px 16px; margin:0 0 28px; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  .fig h2{font-size:16px; margin:0 0 4px; letter-spacing:.5px;}
+  .fig .cap{font-size:12.5px; color:var(--mute); margin:0 0 14px; line-height:1.7;}
+  .fig svg{width:100%; height:auto; display:block;}
+  .note{font-size:12.5px; color:var(--sub); line-height:1.85; margin:14px 0 0; padding:12px 16px; background:#F8FAFC; border-left:3px solid var(--line); border-radius:0 8px 8px 0;}
+  .note b{color:var(--ink);}
+  .note ul{margin:8px 0 0; padding-left:20px}
+  .note li{margin:4px 0}
+  .warn{background:#FEF2F2; border-left-color:#FCA5A5}
+  .warn b{color:#B91C1C}
+
+  svg text{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;}
+  .sub-line{font-size:12.5px; fill:#64748B}
+  .grp-t{font-size:12.5px; font-weight:700}
+  .lb{font-size:10.5px; fill:#64748B}
+  .lb2{font-size:9.5px; fill:#64748B}
+  .nt{font-size:12.5px; font-weight:700}
+  .nts{font-size:11.5px; font-weight:700}
+  .nb{font-size:10px; fill:#475569}
+  .nbs{font-size:9.5px; fill:#475569}
+  .mt{font-size:11.5px; font-weight:700}
+  .todo{font-size:10px; fill:#334155}
+  .layer-t{font-size:14px; font-weight:700; fill:#FFFFFF}
+  .word{font-size:10px; fill:#334155}
+  .smt{font-size:9px; fill:#64748B}
+
+  @media print{
+    body{background:#fff; padding:0; margin:0}
+    header{padding:0 0 10px}
+    .fig{border:none; box-shadow:none; border-radius:0; padding:0; margin:0; page-break-after:always}
+    .fig:last-child{page-break-after:auto}
+    .note{background:#fff}
+    @page{size:A4 landscape; margin:10mm}
+  }
+
+html,body{margin:0;padding:0;background:#fff;}
+svg{display:block;width:1040.0px;height:1420.0px;}
+</style></head><body><svg viewBox="0 0 1040 1420" role="img" aria-label="存取件业务流程图">
+
+    <!-- 开始 -->
+    <rect x="390" y="30" width="260" height="46" rx="23" fill="#DB2777" stroke="#9D174D" stroke-width="1.5"/>
+    <text class="nts" x="520" y="59" text-anchor="middle" fill="#FFFFFF">开始：用户在柜前扫码</text>
+    <line x1="520" y1="76" x2="520" y2="92" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C0 要做什么 -->
+    <polygon points="520,95 630,140 520,185 410,140" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="144" text-anchor="middle" fill="#B45309">要做什么？</text>
+
+    <!-- 分叉到左右两列 -->
+    <polyline points="410,140 270,140 270,196" fill="none" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <polyline points="630,140 770,140 770,196" fill="none" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="nb" x="330" y="132" text-anchor="middle" fill="#2563EB">存件</text>
+    <text class="nb" x="710" y="132" text-anchor="middle" fill="#EA580C">取件</text>
+
+    <!-- ===== 左列：存件 ===== -->
+    <rect x="120" y="200" width="300" height="54" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="270" y="226" text-anchor="middle" fill="#9D174D">在 H5 页面填手机号</text>
+    <text class="smt" x="270" y="245" text-anchor="middle" fill="#BE185D">扫总码不带格号 · 扫柜格贴带 box</text>
+    <line x1="270" y1="254" x2="270" y2="260" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <polygon points="270,264 378,312 270,360 162,312" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="270" y="316" text-anchor="middle" fill="#B45309">已注册？</text>
+    <line x1="162" y1="312" x2="130" y2="312" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="146" y="304" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="14" y="286" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="70" y="308" text-anchor="middle" fill="#B91C1C">拒绝 403</text>
+    <text class="nbs" x="70" y="325" text-anchor="middle" fill="#B91C1C">请先注册</text>
+
+    <line x1="270" y1="360" x2="270" y2="392" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="282" y="380" fill="#475569">是</text>
+    <polygon points="270,396 378,444 270,492 162,444" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="270" y="448" text-anchor="middle" fill="#B45309">柜格空了吗？</text>
+    <line x1="162" y1="444" x2="130" y2="444" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="146" y="436" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="14" y="418" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="70" y="440" text-anchor="middle" fill="#B91C1C">拒绝 409</text>
+    <text class="nbs" x="70" y="457" text-anchor="middle" fill="#B91C1C">该格已有物</text>
+
+    <!-- 多格：扫总码时格是后端挑的 -->
+    <rect x="14" y="486" width="240" height="98" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.4" stroke-dasharray="5 3"/>
+    <text class="nbs" x="26" y="508" fill="#0F766E">扫柜体总码时页面上没有格号</text>
+    <text class="nbs" x="26" y="526" fill="#0F766E">→ 从「在线且空」的格里挑一个</text>
+    <text class="nbs" x="26" y="544" fill="#0F766E">　 （pick_free_box：挑最小的）</text>
+    <text class="nbs" x="26" y="562" fill="#0F766E">→ 四格都在线且空时落 1 号格</text>
+    <text class="nbs" x="26" y="580" fill="#B91C1C">→ 没有空格：409 没有空闲柜格</text>
+
+    <!-- ===== 右列：取件 ===== -->
+    <rect x="620" y="200" width="300" height="54" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="770" y="226" text-anchor="middle" fill="#9D174D">在 H5 页面填 6 位取件码</text>
+    <text class="smt" x="770" y="245" text-anchor="middle" fill="#BE185D">扫总码时格号也是凭码解出来的</text>
+    <line x1="770" y1="254" x2="770" y2="260" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <polygon points="770,264 878,312 770,360 662,312" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="770" y="316" text-anchor="middle" fill="#B45309">取件码对吗？</text>
+    <line x1="878" y1="312" x2="910" y2="312" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="894" y="304" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="926" y="286" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="982" y="308" text-anchor="middle" fill="#B91C1C">拒绝 403</text>
+    <text class="nbs" x="982" y="325" text-anchor="middle" fill="#B91C1C">取件码不对</text>
+
+    <line x1="770" y1="360" x2="770" y2="392" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="782" y="380" fill="#475569">是</text>
+    <polygon points="770,396 878,444 770,492 662,444" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="770" y="448" text-anchor="middle" fill="#B45309">柜格有物吗？</text>
+    <line x1="878" y1="444" x2="910" y2="444" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="894" y="436" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="926" y="418" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="982" y="440" text-anchor="middle" fill="#B91C1C">拒绝 409</text>
+    <text class="nbs" x="982" y="457" text-anchor="middle" fill="#B91C1C">该格是空的</text>
+
+    <!-- 汇合 -->
+    <polyline points="270,492 270,548 512,548" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+    <polyline points="770,492 770,548 528,548" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+    <line x1="520" y1="548" x2="520" y2="568" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- 建订单 -->
+    <rect x="310" y="572" width="420" height="66" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="597" text-anchor="middle" fill="#C2410C">建订单 pending 并落库（此刻格号已定）</text>
+    <text class="smt" x="520" y="617" text-anchor="middle" fill="#9A3412">然后才发布 cmd:open —— 顺序不能反，否则毫秒级的回执会找不到主人</text>
+    <line x1="520" y1="638" x2="520" y2="656" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- 设备执行 -->
+    <rect x="310" y="660" width="420" height="66" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nb" x="520" y="685" text-anchor="middle" fill="#1D4ED8">设备收到 cmd：按 box 定位该格 → 开锁 → 置 ST_OPEN</text>
+    <text class="smt" x="520" y="705" text-anchor="middle" fill="#1E40AF">格号无效的命令整条丢掉（绝不默认成 1 号格）</text>
+    <line x1="520" y1="726" x2="520" y2="744" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C5 门真开了吗 -->
+    <polygon points="520,748 660,796 520,844 380,796" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="800" text-anchor="middle" fill="#B45309">门真的被打开了吗？</text>
+    <line x1="380" y1="796" x2="348" y2="796" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="364" y="788" text-anchor="middle" fill="#DC2626">否/超时</text>
+    <rect x="140" y="764" width="200" height="64" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="240" y="789" text-anchor="middle" fill="#B91C1C">15s 内没有回执 → failed</text>
+    <text class="nbs" x="240" y="808" text-anchor="middle" fill="#B91C1C">OPEN_ACK_TIMEOUT</text>
+
+    <line x1="520" y1="844" x2="520" y2="864" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="862" fill="#475569">是 → 回 door_opened</text>
+    <rect x="310" y="868" width="420" height="60" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="904" text-anchor="middle" fill="#C2410C">订单 pending → opened，用户放入 / 取出物品</text>
+    <line x1="520" y1="928" x2="520" y2="946" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C6 门关上了吗 -->
+    <polygon points="520,950 660,998 520,1046 380,998" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1002" text-anchor="middle" fill="#B45309">门关上了吗？</text>
+    <line x1="660" y1="998" x2="692" y2="998" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="676" y="990" text-anchor="middle" fill="#DC2626">否/超时</text>
+    <rect x="692" y="966" width="230" height="64" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="807" y="991" text-anchor="middle" fill="#B91C1C">60s 内没有回执 → failed</text>
+    <text class="nbs" x="807" y="1010" text-anchor="middle" fill="#B91C1C">OPEN_CLOSE_TIMEOUT</text>
+
+    <line x1="520" y1="1046" x2="520" y2="1066" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="1064" fill="#475569">是 → 回 door_closed</text>
+    <rect x="310" y="1070" width="420" height="66" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1095" text-anchor="middle" fill="#1D4ED8">设备判该格状态（1 号格读压力传感器）</text>
+    <text class="smt" x="520" y="1115" text-anchor="middle" fill="#1E40AF">有物 → OCCUPIED　　无物 → IDLE（虚拟格按动作直接置位）</text>
+    <line x1="520" y1="1136" x2="520" y2="1154" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <rect x="310" y="1158" width="420" height="60" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1194" text-anchor="middle" fill="#C2410C">订单 opened → done，落库 · 写审计日志</text>
+    <line x1="520" y1="1218" x2="520" y2="1240" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="1236" fill="#64748B">仅存件</text>
+    <rect x="310" y="1244" width="420" height="56" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1278" text-anchor="middle" fill="#9D174D">生成 6 位取件码，大字回显给用户</text>
+    <line x1="520" y1="1300" x2="520" y2="1320" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <rect x="400" y="1324" width="240" height="52" rx="26" fill="#DB2777" stroke="#9D174D" stroke-width="1.5"/>
+    <text class="nts" x="520" y="1356" text-anchor="middle" fill="#FFFFFF">结束</text>
+
+    <!-- 图例 -->
+    <rect x="60" y="600" width="200" height="150" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="74" y="624" fill="#1E293B">图例</text>
+    <polygon points="94,644 104,652 94,660 84,652" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.3"/>
+    <text class="smt" x="114" y="656" fill="#475569">判定（后端）</text>
+    <rect x="86" y="674" width="16" height="14" rx="3" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.3"/>
+    <text class="smt" x="114" y="686" fill="#475569">设备动作</text>
+    <rect x="86" y="698" width="16" height="14" rx="3" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.3"/>
+    <text class="smt" x="114" y="710" fill="#475569">后端动作</text>
+    <rect x="86" y="722" width="16" height="14" rx="3" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.3"/>
+    <text class="smt" x="114" y="734" fill="#475569">用户 / H5 动作</text>
+  </svg></body></html>

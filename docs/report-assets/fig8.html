@@ -1,0 +1,70 @@
+<!doctype html><meta charset="utf-8"><style>
+:root{--ink:#1E293B;--sub:#475569;--mute:#64748B;--line:#CBD5E1;
+--p1:#2563EB;--p1f:#EFF6FF;--p1b:#BFDBFE;--p2:#0D9488;--p2f:#ECFDF5;--p2b:#99F6E4;
+--p3:#7C3AED;--p3f:#F5F3FF;--p3b:#DDD6FE;--p4:#EA580C;--p4f:#FFF7ED;--p4b:#FED7AA;
+--p5:#DB2777;--p5f:#FDF2F8;--p5b:#FBCFE8;}
+html,body{margin:0;padding:0;background:#fff}
+svg{display:block;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+.sub-line{font-size:12.5px;fill:#64748B}
+.grp-t{font-size:12.5px;font-weight:700}
+.nt{font-size:12.5px;font-weight:700}
+.nts{font-size:11.5px;font-weight:700}
+.nb{font-size:10px;fill:#475569}
+.nbs{font-size:9.5px;fill:#475569}
+.lb{font-size:10.5px;fill:#64748B}
+.lb2{font-size:9.5px;fill:#64748B}
+</style><svg viewBox="0 0 1200 870" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="s0" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2563EB"/></marker><marker id="s1" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#EA580C"/></marker><marker id="s2" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0D9488"/></marker><marker id="s3" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7C3AED"/></marker><marker id="s4" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7C3AED"/></marker><marker id="s5" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DB2777"/></marker><marker id="sr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/></marker></defs>
+<text class="sub-line" x="30" y="30">实线＝调用 / 消息，虚线＝返回</text>
+<rect x="12.5" y="60" width="185" height="46" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.5"/>
+<text class="nts" x="105" y="89" text-anchor="middle" fill="#2563EB">用户 / H5 页面</text>
+<rect x="227.5" y="60" width="185" height="46" rx="8" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+<text class="nts" x="320" y="89" text-anchor="middle" fill="#EA580C">后端 app.py</text>
+<rect x="442.5" y="60" width="185" height="46" rx="8" fill="#ECFDF5" stroke="#99F6E4" stroke-width="1.5"/>
+<text class="nts" x="535" y="89" text-anchor="middle" fill="#0D9488">SQLite locker.db</text>
+<rect x="627.5" y="60" width="185" height="46" rx="8" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1.5"/>
+<text class="nts" x="720" y="89" text-anchor="middle" fill="#7C3AED">MQTT Broker</text>
+<rect x="812.5" y="60" width="185" height="46" rx="8" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1.5"/>
+<text class="nts" x="905" y="89" text-anchor="middle" fill="#7C3AED">ESP32 固件</text>
+<rect x="997.5" y="60" width="185" height="46" rx="8" fill="#FDF2F8" stroke="#FBCFE8" stroke-width="1.5"/>
+<text class="nts" x="1090" y="89" text-anchor="middle" fill="#DB2777">柜格硬件</text>
+<path d="M105 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M320 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M535 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M720 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M905 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M1090 106 V820" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="6 5" fill="none"/>
+<path d="M105 190 L320 190" stroke="#2563EB" stroke-width="1.6" fill="none" marker-end="url(#s1)"/>
+<text class="lb" x="212.5" y="182" text-anchor="middle">POST /api/open  {phone, action: store}</text>
+<path d="M320 230 L535 230" stroke="#EA580C" stroke-width="1.6" fill="none" marker-end="url(#s2)"/>
+<text class="lb" x="427.5" y="222" text-anchor="middle">查用户余额 · 查该格 occupant()</text>
+<path d="M535 270 L320 270" stroke="#94A3B8" stroke-width="1.6" fill="none" marker-end="url(#sr)" stroke-dasharray="5 4"/>
+<text class="lb" x="427.5" y="262" text-anchor="middle">余额 / 占用者</text>
+<path d="M320 310 L535 310" stroke="#EA580C" stroke-width="1.6" fill="none" marker-end="url(#s2)"/>
+<text class="lb" x="427.5" y="302" text-anchor="middle">INSERT orders (status=pending) · 生成 6 位取件码</text>
+<path d="M320 350 L720 350" stroke="#EA580C" stroke-width="1.6" fill="none" marker-end="url(#s3)"/>
+<text class="lb" x="520.0" y="342" text-anchor="middle">publish locker/1/cmd  {action:"store"}</text>
+<path d="M720 390 L905 390" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s4)"/>
+<text class="lb" x="812.5" y="382" text-anchor="middle">投递命令</text>
+<path d="M905 430 L1090 430" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s5)"/>
+<text class="lb" x="997.5" y="422" text-anchor="middle">读秤判空 → 舵机开锁</text>
+<path d="M905 470 L720 470" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s3)"/>
+<text class="lb" x="812.5" y="462" text-anchor="middle">event door_opened</text>
+<path d="M720 510 L320 510" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s1)"/>
+<text class="lb" x="520.0" y="502" text-anchor="middle">投递回执</text>
+<path d="M320 550 L535 550" stroke="#EA580C" stroke-width="1.6" fill="none" marker-end="url(#s2)"/>
+<text class="lb" x="427.5" y="542" text-anchor="middle">UPDATE orders → opened</text>
+<path d="M105 590 L1090 590" stroke="#2563EB" stroke-width="1.6" fill="none" marker-end="url(#s5)"/>
+<text class="lb" x="597.5" y="582" text-anchor="middle">放入物品 → 关门（人的动作）</text>
+<path d="M1090 630 L905 630" stroke="#DB2777" stroke-width="1.6" fill="none" marker-end="url(#s4)"/>
+<text class="lb" x="997.5" y="622" text-anchor="middle">门磁闭合 + 秤：有物</text>
+<path d="M905 670 L720 670" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s3)"/>
+<text class="lb" x="812.5" y="662" text-anchor="middle">event door_closed {state:"OCCUPIED"}</text>
+<path d="M720 710 L320 710" stroke="#7C3AED" stroke-width="1.6" fill="none" marker-end="url(#s1)"/>
+<text class="lb" x="520.0" y="702" text-anchor="middle">投递回执</text>
+<path d="M320 750 h72 v22 h-72" stroke="#EA580C" stroke-width="1.5" fill="none" marker-end="url(#s1)"/>
+<text class="lb" x="402" y="754">door_close_verdict() → done</text>
+<path d="M320 790 L535 790" stroke="#EA580C" stroke-width="1.6" fill="none" marker-end="url(#s2)"/>
+<text class="lb" x="427.5" y="782" text-anchor="middle">UPDATE orders → done</text>
+<text class="lb2" x="30" y="846">图 8　存件时序图 —— 开锁成功不等于存件成功，只有秤说了算</text>
+</svg>

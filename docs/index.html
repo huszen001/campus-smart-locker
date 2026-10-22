@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>校园智能寄存柜 — 系统图集</title>
+<style>
+  :root{
+    --ink:#1E293B; --sub:#475569; --mute:#64748B; --line:#CBD5E1;
+    --p1:#2563EB; --p1f:#EFF6FF; --p1b:#BFDBFE;
+    --p2:#0D9488; --p2f:#ECFDF5; --p2b:#99F6E4;
+    --p3:#7C3AED; --p3f:#F5F3FF; --p3b:#DDD6FE;
+    --p4:#EA580C; --p4f:#FFF7ED; --p4b:#FED7AA;
+    --p5:#DB2777; --p5f:#FDF2F8; --p5b:#FBCFE8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; padding:32px 24px 64px; background:#F1F5F9; color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;}
+  header{max-width:1360px; margin:0 auto 28px;}
+  header h1{font-size:24px; margin:0 0 8px; letter-spacing:.5px;}
+  header p{margin:0; color:var(--mute); font-size:13.5px;}
+  header .meta{margin:10px 0 0; font-size:12.5px; color:var(--mute); line-height:1.8}
+  main{max-width:1360px; margin:0 auto;}
+  .fig{background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 22px 16px; margin:0 0 28px; box-shadow:0 1px 3px rgba(15,23,42,.06);}
+  .fig h2{font-size:16px; margin:0 0 4px; letter-spacing:.5px;}
+  .fig .cap{font-size:12.5px; color:var(--mute); margin:0 0 14px; line-height:1.7;}
+  .fig svg{width:100%; height:auto; display:block;}
+  .note{font-size:12.5px; color:var(--sub); line-height:1.85; margin:14px 0 0; padding:12px 16px; background:#F8FAFC; border-left:3px solid var(--line); border-radius:0 8px 8px 0;}
+  .note b{color:var(--ink);}
+  .note ul{margin:8px 0 0; padding-left:20px}
+  .note li{margin:4px 0}
+  .warn{background:#FEF2F2; border-left-color:#FCA5A5}
+  .warn b{color:#B91C1C}
+
+  svg text{font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;}
+  .sub-line{font-size:12.5px; fill:#64748B}
+  .grp-t{font-size:12.5px; font-weight:700}
+  .lb{font-size:10.5px; fill:#64748B}
+  .lb2{font-size:9.5px; fill:#64748B}
+  .nt{font-size:12.5px; font-weight:700}
+  .nts{font-size:11.5px; font-weight:700}
+  .nb{font-size:10px; fill:#475569}
+  .nbs{font-size:9.5px; fill:#475569}
+  .mt{font-size:11.5px; font-weight:700}
+  .todo{font-size:10px; fill:#334155}
+  .layer-t{font-size:14px; font-weight:700; fill:#FFFFFF}
+  .word{font-size:10px; fill:#334155}
+  .smt{font-size:9px; fill:#64748B}
+
+  @media print{
+    body{background:#fff; padding:0; margin:0}
+    header{padding:0 0 10px}
+    .fig{border:none; box-shadow:none; border-radius:0; padding:0; margin:0; page-break-after:always}
+    .fig:last-child{page-break-after:auto}
+    .note{background:#fff}
+    @page{size:A4 landscape; margin:10mm}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>校园智能寄存柜 · 系统图集</h1>
+  <p>课程设计原型　|　技术路线：ESP32 ＋ MFRC522 校园卡识别 ＋ SG90 舵机 ＋ 干簧管门磁 ＋ HX711 压力传感器 ＋ 0.96″ OLED ＋ MQTT（Mosquitto）＋ Flask ＋ SQLite</p>
+  <p><b>柜子做 4 格，但硬件只够一格</b>：舵机 / 门磁 / 秤装在 1 号格，2~4 号格由固件虚拟（状态和开门时序都自己演，
+  报文格式与真机一致）；读卡器与屏幕是全柜共用的，所以「刷哪一格」由后端按卡主算出来。</p>
+  <p class="meta">配套文件：<b>diagrams.md</b>（同一套图的 Mermaid 源）、<b>说明文字版.md</b>（逐图文字讲解）。
+  图 6 / 图 7 / 图 8 三张时序图只在 Mermaid 版里提供 —— 手写 SVG 画时序图性价比太低，这一条沿用旧图集的做法。</p>
+</header>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- 图 1  工作原理图                                              -->
+<!-- ============================================================ -->
+<section class="fig">
+  <h2>图 1　系统工作原理图</h2>
+  <p class="cap">两条入口（微信扫一扫打开的 H5 页面 / 校园卡刷卡）汇聚到后端，经 MQTT 下发开门命令；设备执行后经门磁反馈形成闭环。</p>
+
+  <svg viewBox="0 0 1280 900" role="img" aria-label="系统工作原理图">
+    <defs>
+      <marker id="a-g" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#94A3B8"/>
+      </marker>
+      <marker id="a-b" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#2563EB"/>
+      </marker>
+      <marker id="a-r" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DC2626"/>
+      </marker>
+      <marker id="a-t" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#0D9488"/>
+      </marker>
+    </defs>
+
+    <text class="sub-line" x="40" y="34">现场设备侧 ⇄ MQTT 消息总线 ⇄ 云端服务侧；蓝线＝命令下行，红线＝数据上行，青线＝设备内部信号</text>
+
+    <!-- ===== 左：现场设备侧 ===== -->
+    <rect x="40" y="64" width="400" height="616" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="grp-t" x="56" y="92" fill="#334155">现场设备侧（柜体）</text>
+
+    <rect x="58" y="104" width="364" height="58" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nt" x="72" y="128" fill="#1D4ED8">校园卡（RFID）</text>
+    <text class="nbs" x="72" y="147">13.56 MHz · ISO14443A 无源卡 · 卡内唯一 UID</text>
+
+    <rect x="58" y="182" width="364" height="58" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nt" x="72" y="206" fill="#0F766E">MFRC522 读卡模块 ×1</text>
+    <text class="nbs" x="72" y="225">SPI · 只吃 3.3V · 柜体级（全柜共用，不知是哪一格）</text>
+
+    <rect x="58" y="260" width="364" height="76" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nt" x="72" y="284" fill="#1D4ED8">ESP32 主控 ×1（跑 4 格状态机）</text>
+    <text class="nbs" x="72" y="303">Wi-Fi 联网 · 运行 MQTT 客户端</text>
+    <text class="nbs" x="72" y="319">发布 status / event，订阅 cmd / auth_result</text>
+    <text class="nbs" x="72" y="333">只执行命令，不判断权限</text>
+
+    <!-- 三个外设 -->
+    <rect x="58" y="372" width="116" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="70" y="396" fill="#0F766E">舵机 + 门磁</text>
+    <text class="nbs" x="70" y="414">1 号格 · 柜格级</text>
+    <text class="nbs" x="70" y="430">干簧管测门</text>
+
+    <rect x="180" y="372" width="116" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="192" y="396" fill="#0F766E">HX711</text>
+    <text class="nbs" x="192" y="414">1 号格 · 柜格级</text>
+    <text class="nbs" x="192" y="430">只判有物/无物</text>
+
+    <rect x="302" y="372" width="120" height="76" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.5"/>
+    <text class="nts" x="314" y="396" fill="#0F766E">0.96″ OLED</text>
+    <text class="nbs" x="314" y="414">柜体级 · 4 格轮放</text>
+    <text class="nbs" x="314" y="430">刷卡时插播</text>
+
+    <!-- 左列内部箭头 -->
+    <line x1="240" y1="164" x2="240" y2="178" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="240" y1="242" x2="240" y2="256" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="240" y1="338" x2="240" y2="368" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="lb2" x="250" y="176" fill="#475569">13.56 MHz 读 UID</text>
+    <text class="lb2" x="250" y="254" fill="#475569">SPI</text>
+    <text class="lb2" x="250" y="358" fill="#475569">PWM / 两线 / 软件 I²C</text>
+
+    <!-- 门磁反馈：沿右缘回到 ESP32 -->
+    <polyline points="422,410 436,410 436,292 426,292" fill="none" stroke="#DC2626" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#a-r)"/>
+    <text class="smt" x="440" y="356" fill="#DC2626">门状态反馈</text>
+
+    <!-- 接线小结 -->
+    <rect x="58" y="474" width="364" height="188" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="72" y="498" fill="#1E293B">GPIO 接线要点</text>
+    <text class="nbs" x="72" y="522">MFRC522　SCK 18 · MISO 19 · MOSI 23 · SDA 21 · RST 22</text>
+    <text class="nbs" x="72" y="542">SG90 信号　GPIO 13（建议单独 5V 供电、共地）</text>
+    <text class="nbs" x="72" y="562">门磁　　GPIO 4（另一端接 GND，内部上拉）</text>
+    <text class="nbs" x="72" y="582">HX711　　DT 27 · SCK 32（DT 建议串 1kΩ）</text>
+    <text class="nbs" x="72" y="602">OLED　　SDA 25 · SCL 26（软件 I²C）</text>
+    <text class="smt" x="72" y="628" fill="#B91C1C">⚠️ MFRC522 / HX711 / OLED 的 VCC 都必须接 3.3V</text>
+    <text class="smt" x="72" y="646" fill="#B91C1C">　 任意一个插到 5V 都会烧 —— HX711 插错会报废整块板子</text>
+
+    <!-- ===== 中：MQTT ===== -->
+    <rect x="600" y="300" width="180" height="150" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.8"/>
+    <text class="nt" x="690" y="332" text-anchor="middle" fill="#6D28D9">MQTT Broker</text>
+    <text class="nbs" x="690" y="354" text-anchor="middle">Mosquitto</text>
+    <text class="nbs" x="690" y="372" text-anchor="middle">局域网 0.0.0.0:1883</text>
+    <text class="nbs" x="690" y="390" text-anchor="middle">强制用户名密码</text>
+    <text class="nbs" x="690" y="408" text-anchor="middle">主题 locker/locker1/*</text>
+    <text class="nbs" x="690" y="432" text-anchor="middle">设备与后端解耦</text>
+
+    <!-- ===== 右：云端服务侧 ===== -->
+    <rect x="880" y="64" width="360" height="616" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="grp-t" x="896" y="92" fill="#334155">云端服务侧（Flask 服务器）</text>
+
+    <rect x="898" y="104" width="156" height="76" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nts" x="910" y="128" fill="#BE185D">H5 页面</text>
+    <text class="nbs" x="910" y="148">微信扫一扫打开</text>
+    <text class="nbs" x="910" y="164">存件 / 取件 / 绑卡</text>
+
+    <rect x="1066" y="104" width="156" height="76" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nts" x="1078" y="128" fill="#BE185D">网页监控台</text>
+    <text class="nbs" x="1078" y="148">柜格 · 订单 · 日志</text>
+    <text class="nbs" x="1078" y="164">需管理口令</text>
+
+    <rect x="898" y="210" width="324" height="110" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nt" x="912" y="236" fill="#C2410C">Flask 后端</text>
+    <text class="nbs" x="912" y="258">注册 / 绑卡（45s 窗口）· 授权判定（防越权）</text>
+    <text class="nbs" x="912" y="276">订单状态机 · 超时兜底 · 生成 6 位取件码</text>
+    <text class="nbs" x="912" y="294">MQTT 接入 · 写审计日志 · 二维码与柜贴</text>
+
+    <rect x="898" y="340" width="324" height="72" rx="9" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+    <text class="nts" x="912" y="364" fill="#C2410C">SQLite（locker.db）</text>
+    <text class="nbs" x="912" y="384">users · orders · audit 三张表</text>
+    <text class="nbs" x="912" y="400">没有柜体表，柜格状态在内存里</text>
+
+    <!-- 右列内部箭头 -->
+    <line x1="976" y1="180" x2="976" y2="206" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="1144" y1="180" x2="1144" y2="206" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <line x1="1060" y1="320" x2="1060" y2="336" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="lb2" x="988" y="198" fill="#475569">HTTP /api/open</text>
+    <text class="lb2" x="1156" y="198" fill="#475569">HTTP + 口令</text>
+    <text class="lb2" x="1072" y="334" fill="#475569">SQL</text>
+
+    <!-- 授权小结 -->
+    <rect x="898" y="432" width="324" height="230" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="912" y="456" fill="#1E293B">三种凭证（防越权）</text>
+    <circle cx="918" cy="480" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="484">H5 存件 → 手机号：必须在 users 表里注册过</text>
+    <circle cx="918" cy="506" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="510">H5 取件 → 6 位取件码：先凭码找到格，再核对该格</text>
+    <circle cx="918" cy="532" r="2.6" fill="#DB2777"/>
+    <text class="todo" x="930" y="536">刷卡 → 卡 UID：格由后端按卡主算，报文格号忽略</text>
+    <text class="smt" x="912" y="566" fill="#64748B">三条都在后端判定，设备只执行 —— 所以换固件绕不过授权。</text>
+    <text class="smt" x="912" y="588" fill="#64748B">监控台与 /api/orders、/api/logs 要口令：订单里有取件码，</text>
+    <text class="smt" x="912" y="606" fill="#64748B">而取件码是能开柜的，不挡住的话整套授权当场作废。</text>
+    <text class="smt" x="912" y="632" fill="#64748B">取件不校验是谁来取 —— 码就是凭证，朋友拿码也能取走，</text>
+    <text class="smt" x="912" y="650" fill="#64748B">这是有意为之。</text>
+
+    <!-- ===== 跨侧箭头 ===== -->
+    <!-- 上行：ESP32 -> MQTT -> Flask -->
+    <line x1="422" y1="285" x2="596" y2="345" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <line x1="784" y1="335" x2="894" y2="255" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <text class="lb2" x="509" y="300" fill="#DC2626" text-anchor="middle">status / event</text>
+    <text class="lb2" x="845" y="282" fill="#DC2626" text-anchor="middle">投递</text>
+
+    <!-- 下行：Flask -> MQTT -> ESP32 -->
+    <line x1="894" y1="290" x2="784" y2="405" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-b)"/>
+    <line x1="596" y1="415" x2="426" y2="320" stroke="#2563EB" stroke-width="1.8" marker-end="url(#a-b)"/>
+    <text class="lb2" x="845" y="368" fill="#2563EB" text-anchor="middle">cmd / auth_result</text>
+    <text class="lb2" x="509" y="382" fill="#2563EB" text-anchor="middle">投递</text>
+
+    <!-- ===== 底部原理说明 ===== -->
+    <rect x="40" y="700" width="1200" height="160" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="60" y="726" fill="#1E293B">核心原理说明</text>
+    <circle cx="70" cy="752" r="2.6" fill="#0D9488"/>
+    <text class="todo" x="82" y="756">RFID 卡识别：MFRC522 发射 13.56 MHz 电磁场，卡内芯片无源取电并回传唯一 UID，作为身份凭证</text>
+    <circle cx="70" cy="782" r="2.6" fill="#7C3AED"/>
+    <text class="todo" x="82" y="786">MQTT 发布/订阅：设备与后端不直接互调，均接入 broker 按主题通信，实现松耦合与多设备并行</text>
+    <circle cx="70" cy="812" r="2.6" fill="#2563EB"/>
+    <text class="todo" x="82" y="816">开锁–反馈闭环：舵机模拟开锁，门磁检测真实门状态并回传 —— 后端不因为「命令发出去了」就认为存取成功</text>
+    <circle cx="70" cy="842" r="2.6" fill="#EA580C"/>
+    <text class="todo" x="82" y="846">两条入口共用同一授权逻辑：无论刷卡还是扫码，最终都收敛到「后端判定 → MQTT 下发 → 设备执行 → 门磁回执」</text>
+  </svg>
+
+  <p class="note">
+    <b>要点：</b>刷卡路径走「读 UID → 发布 card_scan → 后端查绑定」，扫码路径走「填手机号或取件码 → POST /api/open」；
+    两条路径在 Flask 后端汇合，共用同一套授权判定，再经 MQTT 下发 <b>cmd</b>。
+    门磁的回传让后端能确认「锁到底开没开」，而不是发完命令就了事 —— 这是状态闭环的关键。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 柜子是 4 格，硬件只够一格。</b>上面设备侧那一筐（舵机 / 门磁 / 秤 / 屏）是按
+    <b>1 号格</b>画的，而这几样分两类：
+    <ul>
+      <li><b>柜格级（每格一套，只装了 1 号格）：</b>SG90 舵机、干簧管门磁、HX711 压力传感器。
+          舵机 + 门磁 + 秤是 4 根线，四格要 16 根，这块板子的可用脚不够。</li>
+      <li><b>柜体级（全柜共用一套）：</b>ESP32 主控、MFRC522 读卡器、0.96″ OLED。
+          <b>正因为读卡器是共用的，"刷哪一格"它根本不知道</b> —— 由后端按卡主占着哪一格算出来
+          （见 diagrams.md 图 8）。屏幕也只有一块，只能轮流显示 4 格状态。</li>
+    </ul>
+    <b>2~4 号格由固件虚拟</b>：状态、开门时序都自己演，报文格式与真机完全一致，后端一行都不用改。
+    所以监控台上看到它们「离线」是正常现象（真机运行时 2~4 号格没有心跳）。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 与旧版的差别：</b>
+    <ul>
+      <li><b>交互层是 H5 页面，不是微信小程序。</b>柜贴上的二维码被微信「扫一扫」打开，就是一个普通网页 ——
+          没有小程序那一套 appid、授权登录、审核发布。</li>
+      <li><b>数据库是三张表不是四张。</b>没有「柜体表」：柜格的在线/门开/有物是设备每 10 秒心跳上来的瞬时状态，
+          存在 Flask 内存里，重启后端即清空。落库反而要处理「断电后残留的脏状态」。</li>
+      <li><b>设备只是执行器。</b>ESP32 不做任何权限判断，全部判定在后端 —— 这样改固件绕不过授权。</li>
+      <li><b>柜贴有两种。</b>柜体总码 <code>/poster/cabinet</code>（一张，存件自动挑格、取件凭码找格）
+          和柜格贴 <code>/poster/&lt;box&gt;</code>（每格一张，锁定到那一格）。</li>
+    </ul>
+  </p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- 图 2  系统架构图                                              -->
+<!-- ============================================================ -->
+<section class="fig">
+  <h2>图 2　系统总体架构图</h2>
+  <p class="cap">四层架构：设备层 → 传输层 → 后端层 → 交互层；两侧为贯穿全系统的安全机制与协议/数据规范。</p>
+
+  <svg viewBox="0 0 1280 900" role="img" aria-label="系统总体架构图">
+    <text class="sub-line" x="180" y="40">上行：状态 / 事件 / 刷卡数据自下而上　　|　　下行：开门命令与授权结果自上而下</text>
+
+    <!-- ===== L4 交互层 ===== -->
+    <rect x="180" y="64" width="880" height="140" rx="12" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="92">交互层　Interaction</text>
+    <rect x="200" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="212" y="126" fill="#BE185D">H5 页面</text>
+    <text class="nbs" x="212" y="146">微信扫柜贴二维码打开</text>
+    <text class="nbs" x="212" y="162">存件 · 取件 · 注册 · 绑卡</text>
+    <text class="nbs" x="212" y="178">不存手机号到 localStorage</text>
+
+    <rect x="425" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="437" y="126" fill="#BE185D">网页监控台</text>
+    <text class="nbs" x="437" y="146">柜格状态 · 订单 · 日志</text>
+    <text class="nbs" x="437" y="162">每 2s 自动刷新</text>
+    <text class="nbs" x="437" y="178">需管理口令</text>
+
+    <rect x="650" y="102" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="662" y="126" fill="#BE185D">柜贴二维码（两种）</text>
+    <text class="nbs" x="662" y="146">总码 /poster/cabinet ｜ 柜格贴 /poster/&lt;box&gt;</text>
+    <text class="nbs" x="662" y="162">/qr/cabinet.png ｜ /qr/&lt;box&gt;.png</text>
+    <text class="nbs" x="662" y="178">均可 Ctrl+P 打印，与监控台分两页</text>
+
+    <rect x="875" y="102" width="165" height="86" rx="8" fill="#FFFFFF" stroke="#FBCFE8" stroke-width="1.3"/>
+    <text class="nts" x="887" y="126" fill="#BE185D">校园卡刷卡</text>
+    <text class="nbs" x="887" y="146">第二条免密路径</text>
+    <text class="nbs" x="887" y="162">读 UID 直接开柜</text>
+    <text class="nbs" x="887" y="178">格号由后端按卡主算</text>
+
+    <!-- ===== L3 后端层 ===== -->
+    <rect x="180" y="228" width="880" height="140" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="256">后端层　Backend</text>
+    <rect x="200" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="212" y="290" fill="#C2410C">用户管理</text>
+    <text class="nbs" x="212" y="310">注册 · 绑卡</text>
+    <text class="nbs" x="212" y="326">绑卡窗口 45s</text>
+    <text class="nbs" x="212" y="342">一次性，用完作废</text>
+
+    <rect x="358" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="370" y="290" fill="#C2410C">授权判定 · 定格</text>
+    <text class="nbs" x="370" y="310">手机号 / 取件码 / 卡 UID</text>
+    <text class="nbs" x="370" y="326">自动挑格 · 凭码找格</text>
+    <text class="nbs" x="370" y="342">防越权，见图 3</text>
+
+    <rect x="516" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="528" y="290" fill="#C2410C">订单状态机</text>
+    <text class="nbs" x="528" y="310">pending → opened</text>
+    <text class="nbs" x="528" y="326">→ done / failed</text>
+    <text class="nbs" x="528" y="342">超时兜底，见图 5</text>
+
+    <rect x="674" y="266" width="148" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="686" y="290" fill="#C2410C">MQTT 接入</text>
+    <text class="nbs" x="686" y="310">订阅 status / event</text>
+    <text class="nbs" x="686" y="326">发布 cmd / auth_result</text>
+    <text class="nbs" x="686" y="342">先落库再 publish</text>
+
+    <rect x="832" y="266" width="208" height="86" rx="8" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.3"/>
+    <text class="nts" x="844" y="290" fill="#C2410C">审计日志 · 数据存储</text>
+    <text class="nbs" x="844" y="310">谁 · 何时 · 哪种方式 · 哪个格 · 成败</text>
+    <text class="nbs" x="844" y="326">SQLite 三张表：users / orders / audit</text>
+    <text class="nbs" x="844" y="342">在线判定只用后端收到的时刻</text>
+
+    <!-- ===== L2 传输层 ===== -->
+    <rect x="180" y="392" width="880" height="140" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="420">传输层　Transport</text>
+    <rect x="200" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="212" y="454" fill="#6D28D9">MQTT Broker</text>
+    <text class="nbs" x="212" y="474">Mosquitto 2.x</text>
+    <text class="nbs" x="212" y="490">监听 0.0.0.0:1883</text>
+    <text class="nbs" x="212" y="506">强制用户名密码</text>
+
+    <rect x="425" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="437" y="454" fill="#6D28D9">主题规范</text>
+    <text class="nbs" x="437" y="474">locker/locker1/cmd</text>
+    <text class="nbs" x="437" y="490">…/status　…/event</text>
+    <text class="nbs" x="437" y="506">…/auth_result</text>
+
+    <rect x="650" y="430" width="205" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="662" y="454" fill="#6D28D9">报文格式 JSON</text>
+    <text class="nbs" x="662" y="474">设备 ts 是开机秒数</text>
+    <text class="nbs" x="662" y="490">后端另存 last_seen</text>
+    <text class="nbs" x="662" y="506">只在心跳里刷新</text>
+
+    <rect x="875" y="430" width="165" height="86" rx="8" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.3"/>
+    <text class="nts" x="887" y="454" fill="#6D28D9">Wi-Fi</text>
+    <text class="nbs" x="887" y="474">ESP32 接入</text>
+    <text class="nbs" x="887" y="490">每 10s 心跳保活</text>
+    <text class="nbs" x="887" y="506">断线重连</text>
+
+    <!-- ===== L1 设备层 ===== -->
+    <rect x="180" y="556" width="880" height="140" rx="12" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="layer-t" x="200" y="584">设备层　Device</text>
+    <rect x="200" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="212" y="618" fill="#1D4ED8">ESP32 主控 ×1</text>
+    <text class="nbs" x="212" y="638">Wi-Fi + MQTT</text>
+    <text class="nbs" x="212" y="654">4 格状态机</text>
+    <text class="nbs" x="212" y="670">见图 4</text>
+
+    <rect x="350" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="362" y="618" fill="#1D4ED8">MFRC522 ×1</text>
+    <text class="nbs" x="362" y="638">柜体级 · 全柜共用</text>
+    <text class="nbs" x="362" y="654">SPI · 3.3V</text>
+    <text class="nbs" x="362" y="670">读 UID，不知是哪格</text>
+
+    <rect x="500" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="512" y="618" fill="#1D4ED8">SG90 舵机 ×1</text>
+    <text class="nbs" x="512" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="512" y="654">PWM · GPIO 13</text>
+    <text class="nbs" x="512" y="670">堵转约 700mA</text>
+
+    <rect x="650" y="594" width="140" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="662" y="618" fill="#1D4ED8">干簧管门磁 ×1</text>
+    <text class="nbs" x="662" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="662" y="654">GPIO 4 · 内部上拉</text>
+    <text class="nbs" x="662" y="670">另有 30s 报警</text>
+
+    <rect x="800" y="594" width="120" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="812" y="618" fill="#1D4ED8">HX711 ×1</text>
+    <text class="nbs" x="812" y="638">柜格级 · 仅 1 号格</text>
+    <text class="nbs" x="812" y="654">DT 27 · SCK 32</text>
+    <text class="nbs" x="812" y="670">不称重</text>
+
+    <rect x="930" y="594" width="110" height="86" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.3"/>
+    <text class="nts" x="942" y="618" fill="#1D4ED8">OLED ×1</text>
+    <text class="nbs" x="942" y="638">柜体级 · 4 格轮放</text>
+    <text class="nbs" x="942" y="654">软件 I²C</text>
+    <text class="nbs" x="942" y="670">SDA 25 · SCL 26</text>
+
+    <!-- 层间箭头：数据自下而上（三层间隙各一条） -->
+    <line x1="620" y1="552" x2="620" y2="538" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <line x1="620" y1="388" x2="620" y2="374" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <line x1="620" y1="224" x2="620" y2="210" stroke="#94A3B8" stroke-width="2" marker-end="url(#a-g)"/>
+    <text class="lb" x="632" y="550" fill="#475569">数据上行</text>
+    <text class="lb" x="632" y="386" fill="#475569">数据上行</text>
+    <text class="lb" x="632" y="222" fill="#475569">数据上行</text>
+
+    <!-- 侧栏：安全机制 -->
+    <rect x="1080" y="64" width="160" height="300" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="1096" y="92" fill="#1E293B">安全机制</text>
+    <circle cx="1100" cy="116" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="120">三种凭证：手机号 /</text>
+    <text class="smt" x="1110" y="134">取件码 / 卡 UID</text>
+    <circle cx="1100" cy="156" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="160">格号由后端算：</text>
+    <text class="smt" x="1110" y="174">挑格 / 找格 / 按卡主</text>
+    <circle cx="1100" cy="196" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="200">管理口令挡监控台</text>
+    <text class="smt" x="1110" y="214">与订单 / 日志接口</text>
+    <circle cx="1100" cy="236" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="240">扫码页不回手机号</text>
+    <text class="smt" x="1110" y="254">和取件码</text>
+    <circle cx="1100" cy="276" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="280">审计日志：成败都记</text>
+    <circle cx="1100" cy="302" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="306">失败路径兜底：</text>
+    <text class="smt" x="1110" y="320">15s / 60s 双超时</text>
+    <circle cx="1100" cy="342" r="2.4" fill="#DB2777"/>
+    <text class="smt" x="1110" y="346">门开超 30s 报警</text>
+
+    <!-- 侧栏：协议与数据 -->
+    <rect x="1080" y="392" width="160" height="304" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <text class="mt" x="1096" y="420" fill="#1E293B">协议与数据</text>
+    <circle cx="1100" cy="444" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="448">MQTT 3.1.1 · JSON</text>
+    <circle cx="1100" cy="472" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="476">HTTP RESTful</text>
+    <text class="smt" x="1110" y="490">GET / POST</text>
+    <circle cx="1100" cy="512" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="516">ISO14443A（刷卡）</text>
+    <circle cx="1100" cy="540" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="544">SPI（读卡器）</text>
+    <text class="smt" x="1110" y="558">HSPI 映射</text>
+    <circle cx="1100" cy="580" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="584">软件 I²C（OLED）</text>
+    <text class="smt" x="1110" y="598">不挑脚，几十 ms 刷屏</text>
+    <circle cx="1100" cy="620" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="624">PWM（舵机）</text>
+    <circle cx="1100" cy="648" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="652">HX711 两线（DT/SCK）</text>
+    <text class="smt" x="1110" y="666">24 位读数 + 第 25 脉冲</text>
+    <circle cx="1100" cy="678" r="2.4" fill="#7C3AED"/>
+    <text class="smt" x="1110" y="682">SQLite 文件库</text>
+
+    <!-- 侧栏虚线连接 -->
+    <line x1="1080" y1="300" x2="1064" y2="300" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <line x1="1080" y1="460" x2="1064" y2="460" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="4 3"/>
+  </svg>
+
+  <p class="note">
+    <b>数据流向：</b>
+    上行「设备层 → 传输层 → 后端层 → 交互层」跑的是 <b>status</b>（每 10s 心跳）、<b>event</b>（door_opened / door_closed / card_scan / error）；
+    下行「交互层 → 后端层 → 传输层 → 设备层」跑的是 <b>cmd</b>（开门命令）和 <b>auth_result</b>（刷卡授权结果）。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 三处容易画错的地方：</b>
+    <ul>
+      <li><b>数据存储是 SQLite 三张表</b>（users / orders / audit），旧图写的「SQLite / MySQL 四张表」里
+          那张「柜体表」从来就不存在 —— 柜格状态是心跳上来的瞬时量，只活在内存里。</li>
+      <li><b>交互层没有「小程序」。</b>是微信扫一扫打开的 H5 页面，写「小程序」会让人以为要 appid 和审核发布。</li>
+      <li><b>设备层多了 HX711 与 OLED，少了一颗「光电传感器」。</b>
+          物品检测已经从光电换成 HX711 压力传感器，但功能没变 —— 仍然只回答「有 / 无」，不称重。</li>
+      <li><b>设备层现在标了「×1」和「柜体级 / 柜格级」。</b>柜子做 4 格，但 <b>舵机 / 门磁 / HX711 只装了 1 号格</b>
+          （它们是柜格级的，每格一套），<b>ESP32 / RC522 / OLED 是全柜共用的</b>（柜体级）。
+          2~4 号格由固件虚拟，无硬件。</li>
+    </ul>
+  </p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- 图 3  存取件业务流程图                                         -->
+<!-- ============================================================ -->
+<section class="fig">
+  <h2>图 3　存取件业务流程图</h2>
+  <p class="cap">存件走手机号、取件走 6 位取件码，两条支路在「建订单」处汇合；之后是同一套「下发命令 → 门磁确认 → 落库」闭环。<b>格号在这两条支路上都是后端算出来的</b>：扫柜体总码时存件由 <code>pick_free_box()</code> 挑、取件由 <code>box_of_code()</code> 找。</p>
+
+  <svg viewBox="0 0 1040 1420" role="img" aria-label="存取件业务流程图">
+
+    <!-- 开始 -->
+    <rect x="390" y="30" width="260" height="46" rx="23" fill="#DB2777" stroke="#9D174D" stroke-width="1.5"/>
+    <text class="nts" x="520" y="59" text-anchor="middle" fill="#FFFFFF">开始：用户在柜前扫码</text>
+    <line x1="520" y1="76" x2="520" y2="92" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C0 要做什么 -->
+    <polygon points="520,95 630,140 520,185 410,140" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="144" text-anchor="middle" fill="#B45309">要做什么？</text>
+
+    <!-- 分叉到左右两列 -->
+    <polyline points="410,140 270,140 270,196" fill="none" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <polyline points="630,140 770,140 770,196" fill="none" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="nb" x="330" y="132" text-anchor="middle" fill="#2563EB">存件</text>
+    <text class="nb" x="710" y="132" text-anchor="middle" fill="#EA580C">取件</text>
+
+    <!-- ===== 左列：存件 ===== -->
+    <rect x="120" y="200" width="300" height="54" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="270" y="226" text-anchor="middle" fill="#9D174D">在 H5 页面填手机号</text>
+    <text class="smt" x="270" y="245" text-anchor="middle" fill="#BE185D">扫总码不带格号 · 扫柜格贴带 box</text>
+    <line x1="270" y1="254" x2="270" y2="260" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <polygon points="270,264 378,312 270,360 162,312" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="270" y="316" text-anchor="middle" fill="#B45309">已注册？</text>
+    <line x1="162" y1="312" x2="130" y2="312" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="146" y="304" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="14" y="286" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="70" y="308" text-anchor="middle" fill="#B91C1C">拒绝 403</text>
+    <text class="nbs" x="70" y="325" text-anchor="middle" fill="#B91C1C">请先注册</text>
+
+    <line x1="270" y1="360" x2="270" y2="392" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="282" y="380" fill="#475569">是</text>
+    <polygon points="270,396 378,444 270,492 162,444" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="270" y="448" text-anchor="middle" fill="#B45309">柜格空了吗？</text>
+    <line x1="162" y1="444" x2="130" y2="444" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="146" y="436" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="14" y="418" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="70" y="440" text-anchor="middle" fill="#B91C1C">拒绝 409</text>
+    <text class="nbs" x="70" y="457" text-anchor="middle" fill="#B91C1C">该格已有物</text>
+
+    <!-- 多格：扫总码时格是后端挑的 -->
+    <rect x="14" y="486" width="240" height="98" rx="9" fill="#ECFDF5" stroke="#0D9488" stroke-width="1.4" stroke-dasharray="5 3"/>
+    <text class="nbs" x="26" y="508" fill="#0F766E">扫柜体总码时页面上没有格号</text>
+    <text class="nbs" x="26" y="526" fill="#0F766E">→ 从「在线且空」的格里挑一个</text>
+    <text class="nbs" x="26" y="544" fill="#0F766E">　 （pick_free_box：挑最小的）</text>
+    <text class="nbs" x="26" y="562" fill="#0F766E">→ 四格都在线且空时落 1 号格</text>
+    <text class="nbs" x="26" y="580" fill="#B91C1C">→ 没有空格：409 没有空闲柜格</text>
+
+    <!-- ===== 右列：取件 ===== -->
+    <rect x="620" y="200" width="300" height="54" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="770" y="226" text-anchor="middle" fill="#9D174D">在 H5 页面填 6 位取件码</text>
+    <text class="smt" x="770" y="245" text-anchor="middle" fill="#BE185D">扫总码时格号也是凭码解出来的</text>
+    <line x1="770" y1="254" x2="770" y2="260" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <polygon points="770,264 878,312 770,360 662,312" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="770" y="316" text-anchor="middle" fill="#B45309">取件码对吗？</text>
+    <line x1="878" y1="312" x2="910" y2="312" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="894" y="304" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="926" y="286" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="982" y="308" text-anchor="middle" fill="#B91C1C">拒绝 403</text>
+    <text class="nbs" x="982" y="325" text-anchor="middle" fill="#B91C1C">取件码不对</text>
+
+    <line x1="770" y1="360" x2="770" y2="392" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="782" y="380" fill="#475569">是</text>
+    <polygon points="770,396 878,444 770,492 662,444" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="770" y="448" text-anchor="middle" fill="#B45309">柜格有物吗？</text>
+    <line x1="878" y1="444" x2="910" y2="444" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="894" y="436" text-anchor="middle" fill="#DC2626">否</text>
+    <rect x="926" y="418" width="112" height="52" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="982" y="440" text-anchor="middle" fill="#B91C1C">拒绝 409</text>
+    <text class="nbs" x="982" y="457" text-anchor="middle" fill="#B91C1C">该格是空的</text>
+
+    <!-- 汇合 -->
+    <polyline points="270,492 270,548 512,548" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+    <polyline points="770,492 770,548 528,548" fill="none" stroke="#94A3B8" stroke-width="1.8"/>
+    <line x1="520" y1="548" x2="520" y2="568" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- 建订单 -->
+    <rect x="310" y="572" width="420" height="66" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="597" text-anchor="middle" fill="#C2410C">建订单 pending 并落库（此刻格号已定）</text>
+    <text class="smt" x="520" y="617" text-anchor="middle" fill="#9A3412">然后才发布 cmd:open —— 顺序不能反，否则毫秒级的回执会找不到主人</text>
+    <line x1="520" y1="638" x2="520" y2="656" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- 设备执行 -->
+    <rect x="310" y="660" width="420" height="66" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nb" x="520" y="685" text-anchor="middle" fill="#1D4ED8">设备收到 cmd：按 box 定位该格 → 开锁 → 置 ST_OPEN</text>
+    <text class="smt" x="520" y="705" text-anchor="middle" fill="#1E40AF">格号无效的命令整条丢掉（绝不默认成 1 号格）</text>
+    <line x1="520" y1="726" x2="520" y2="744" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C5 门真开了吗 -->
+    <polygon points="520,748 660,796 520,844 380,796" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="800" text-anchor="middle" fill="#B45309">门真的被打开了吗？</text>
+    <line x1="380" y1="796" x2="348" y2="796" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="364" y="788" text-anchor="middle" fill="#DC2626">否/超时</text>
+    <rect x="140" y="764" width="200" height="64" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="240" y="789" text-anchor="middle" fill="#B91C1C">15s 内没有回执 → failed</text>
+    <text class="nbs" x="240" y="808" text-anchor="middle" fill="#B91C1C">OPEN_ACK_TIMEOUT</text>
+
+    <line x1="520" y1="844" x2="520" y2="864" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="862" fill="#475569">是 → 回 door_opened</text>
+    <rect x="310" y="868" width="420" height="60" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="904" text-anchor="middle" fill="#C2410C">订单 pending → opened，用户放入 / 取出物品</text>
+    <line x1="520" y1="928" x2="520" y2="946" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- C6 门关上了吗 -->
+    <polygon points="520,950 660,998 520,1046 380,998" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1002" text-anchor="middle" fill="#B45309">门关上了吗？</text>
+    <line x1="660" y1="998" x2="692" y2="998" stroke="#DC2626" stroke-width="1.6" marker-end="url(#a-r)"/>
+    <text class="smt" x="676" y="990" text-anchor="middle" fill="#DC2626">否/超时</text>
+    <rect x="692" y="966" width="230" height="64" rx="8" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.4"/>
+    <text class="nbs" x="807" y="991" text-anchor="middle" fill="#B91C1C">60s 内没有回执 → failed</text>
+    <text class="nbs" x="807" y="1010" text-anchor="middle" fill="#B91C1C">OPEN_CLOSE_TIMEOUT</text>
+
+    <line x1="520" y1="1046" x2="520" y2="1066" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="1064" fill="#475569">是 → 回 door_closed</text>
+    <rect x="310" y="1070" width="420" height="66" rx="9" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1095" text-anchor="middle" fill="#1D4ED8">设备判该格状态（1 号格读压力传感器）</text>
+    <text class="smt" x="520" y="1115" text-anchor="middle" fill="#1E40AF">有物 → OCCUPIED　　无物 → IDLE（虚拟格按动作直接置位）</text>
+    <line x1="520" y1="1136" x2="520" y2="1154" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <rect x="310" y="1158" width="420" height="60" rx="9" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1194" text-anchor="middle" fill="#C2410C">订单 opened → done，落库 · 写审计日志</text>
+    <line x1="520" y1="1218" x2="520" y2="1240" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#a-g)"/>
+    <text class="smt" x="532" y="1236" fill="#64748B">仅存件</text>
+    <rect x="310" y="1244" width="420" height="56" rx="9" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.5"/>
+    <text class="nb" x="520" y="1278" text-anchor="middle" fill="#9D174D">生成 6 位取件码，大字回显给用户</text>
+    <line x1="520" y1="1300" x2="520" y2="1320" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <rect x="400" y="1324" width="240" height="52" rx="26" fill="#DB2777" stroke="#9D174D" stroke-width="1.5"/>
+    <text class="nts" x="520" y="1356" text-anchor="middle" fill="#FFFFFF">结束</text>
+
+    <!-- 图例 -->
+    <rect x="60" y="600" width="200" height="150" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="74" y="624" fill="#1E293B">图例</text>
+    <polygon points="94,644 104,652 94,660 84,652" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.3"/>
+    <text class="smt" x="114" y="656" fill="#475569">判定（后端）</text>
+    <rect x="86" y="674" width="16" height="14" rx="3" fill="#EFF6FF" stroke="#2563EB" stroke-width="1.3"/>
+    <text class="smt" x="114" y="686" fill="#475569">设备动作</text>
+    <rect x="86" y="698" width="16" height="14" rx="3" fill="#FFF7ED" stroke="#EA580C" stroke-width="1.3"/>
+    <text class="smt" x="114" y="710" fill="#475569">后端动作</text>
+    <rect x="86" y="722" width="16" height="14" rx="3" fill="#FDF2F8" stroke="#DB2777" stroke-width="1.3"/>
+    <text class="smt" x="114" y="734" fill="#475569">用户 / H5 动作</text>
+  </svg>
+
+  <p class="note">
+    <b>两个决策点是全系统的要害：</b>
+    一个<b>防越权</b>（凭证对不上就拒，且记审计 —— 别人拿不走你的东西），
+    一个<b>防执行失败</b>（<b>门磁说了算</b>：命令发出不等于柜门开了，更不等于东西放进去了）。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 关门回执之前，门必须真的被打开过。</b>固件里的 <b>doorSeenOpen</b> 就是干这个的：<b>舵机开锁 ≠ 门被打开</b>。
+    下单时若门正好关着，程序置 <code>ST_OPEN</code> 后下一轮（50 ms）就会把「锁已开」误判成「门关了」，
+    订单 <b>1 秒</b>就 <code>done</code>，而东西还没放进去 —— 那一刻压力传感器读到无物，状态还会落成 <code>IDLE</code>，
+    于是柜里明明有东西、状态却说空。真机流程必须是
+    <b>下单 → 舵机开锁 → 手动拉开门 → 放东西 → 关门</b>。
+  </p>
+  <p class="note">
+    <b>⚠️ 格号非法一律报错，绝不静默回落。</b>旧写法是 <code>data.get("box", 1)</code>：
+    单格时看不出区别，<b>多格之后等于「扫 3 号格、开 1 号格的门」</b> ——
+    用户放进去的东西躺在别人的格里，而页面上写着「3 号」，事后谁都说不清。
+    所以 <code>/api/open</code> 和 <code>/scan</code> 里，格号不存在就 <b>400 / 404</b>；
+    门磁回执里的格号无效，整条丢掉并记一条 <code>deny</code> 审计。
+    宁可丢一条回执让它超时失败，也不要记到别人头上。
+  </p>
+  <p class="note">
+    <b>凭码找格必须复用 <code>occupant()</code>，不能直接查 <code>orders</code>。</b>
+    直接 <code>SELECT box FROM orders WHERE pickup_code=?</code> 的话，
+    <b>一个早就取走的存件单还会命中</b>，于是给用户开一次空柜门。
+    「这格里现在有没有东西」全项目只有 <code>occupant()</code> 一个口径 ——
+    挑空格、凭码找格、刷卡定格、看板统计全都调它。
+  </p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- 图 4  柜格状态机                                              -->
+<!-- ============================================================ -->
+<section class="fig">
+  <h2>图 4　柜格状态机（设备端）</h2>
+  <p class="cap">只有三个状态。<b>每一格各跑一份</b>（固件里是 <code>Box boxes[BOX_COUNT]</code>），四格互不影响。左右两条竖线分别是「下行（进 OPEN）」与「上行（出 OPEN）」，避免箭头互相压住。</p>
+
+  <svg viewBox="0 0 940 700" role="img" aria-label="柜格状态机">
+
+    <text class="sub-line" x="350" y="40">状态由「锁状态 × 压力传感器读数」共同定义，不引入故障态</text>
+
+    <!-- 上电 · 无物 -->
+    <text class="smt" x="470" y="60" text-anchor="middle" fill="#475569">上电 · 压力传感器测得无物</text>
+    <line x1="470" y1="68" x2="470" y2="84" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+
+    <!-- IDLE -->
+    <rect x="350" y="90" width="240" height="80" rx="14" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+    <text class="nt" x="470" y="122" text-anchor="middle" fill="#0F766E">IDLE　空闲</text>
+    <text class="nbs" x="470" y="144" text-anchor="middle">门关 · 已上锁 · 无物</text>
+    <text class="nbs" x="470" y="160" text-anchor="middle">常态，可接受存件</text>
+
+    <!-- IDLE -> OPEN（左道下行） -->
+    <line x1="400" y1="170" x2="400" y2="296" stroke="#2563EB" stroke-width="2" marker-end="url(#a-b)"/>
+    <text class="nb" x="470" y="212" text-anchor="middle" fill="#2563EB">收到 cmd:open（存件）</text>
+
+    <!-- OPEN -> IDLE（右道上行） -->
+    <line x1="540" y1="296" x2="540" y2="174" stroke="#0D9488" stroke-width="2" marker-end="url(#a-t)"/>
+    <text class="nb" x="470" y="268" text-anchor="middle" fill="#0F766E">关门且测得空</text>
+
+    <!-- OPEN -->
+    <rect x="350" y="300" width="240" height="80" rx="14" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+    <text class="nt" x="470" y="332" text-anchor="middle" fill="#1D4ED8">OPEN　门已开</text>
+    <text class="nbs" x="470" y="354" text-anchor="middle">已解锁，等用户开门</text>
+    <text class="nbs" x="470" y="370" text-anchor="middle">短暂中间态</text>
+
+    <!-- OPEN -> OCCUPIED（左道下行） -->
+    <line x1="400" y1="380" x2="400" y2="506" stroke="#0D9488" stroke-width="2" marker-end="url(#a-t)"/>
+    <text class="nb" x="470" y="422" text-anchor="middle" fill="#0F766E">关门且测得有物</text>
+
+    <!-- OCCUPIED -> OPEN（右道上行） -->
+    <line x1="540" y1="506" x2="540" y2="384" stroke="#2563EB" stroke-width="2" marker-end="url(#a-b)"/>
+    <text class="nb" x="470" y="478" text-anchor="middle" fill="#2563EB">收到 cmd:open（取件）</text>
+
+    <!-- OCCUPIED -->
+    <rect x="350" y="510" width="240" height="80" rx="14" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+    <text class="nt" x="470" y="542" text-anchor="middle" fill="#0F766E">OCCUPIED　有物品</text>
+    <text class="nbs" x="470" y="564" text-anchor="middle">门关 · 已上锁 · 有物</text>
+    <text class="nbs" x="470" y="580" text-anchor="middle">只进不出，见图注</text>
+
+    <!-- 上电 · 有物 -->
+    <line x1="470" y1="628" x2="470" y2="598" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="470" y="648" text-anchor="middle" fill="#475569">上电 · 压力传感器测得有物</text>
+
+    <!-- 左侧注：门开超时 -->
+    <rect x="26" y="300" width="280" height="132" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="40" y="326" fill="#B45309">⚠️ 门开超时只报警，不迁移</text>
+    <text class="smt" x="40" y="350" fill="#475569">OPEN 超过 30 秒未关门</text>
+    <text class="smt" x="40" y="368" fill="#475569">→ 上报 error(door_left_open)</text>
+    <text class="smt" x="40" y="390" fill="#475569">但状态仍留在 OPEN 等用户 ——</text>
+    <text class="smt" x="40" y="408" fill="#475569">强行转移反而会把人锁在外面。</text>
+    <text class="smt" x="40" y="426" fill="#64748B">后端另有 15s / 60s 双超时兜底。</text>
+
+    <!-- 右侧注：OCCUPIED 死胡同 -->
+    <rect x="634" y="300" width="280" height="132" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="648" y="326" fill="#0F766E">OCCUPIED 只进不出</text>
+    <text class="smt" x="648" y="350" fill="#475569">只能靠一次正常取件</text>
+    <text class="smt" x="648" y="368" fill="#475569">（OCCUPIED → OPEN → IDLE）</text>
+    <text class="smt" x="648" y="386" fill="#475569">才会离开。这正是「柜里有东西</text>
+    <text class="smt" x="648" y="404" fill="#475569">就存不进去」这个防呆的来源 ——</text>
+    <text class="smt" x="648" y="422" fill="#64748B">它是状态机自然带来的，不是额外写的判断。</text>
+  </svg>
+
+  <p class="note warn">
+    <b>⚠️ 这里只有三个状态，网上常见的第四个 <code>ERROR</code> 在本项目是死代码。</b>
+    固件里 <code>ST_ERROR</code> 仅作枚举占位，代码不会进入它 —— 后端靠自己的超时判 <code>failed</code> 来兜「执行失败」，
+    设备端不需要故障态。硬要启用会出事：关门分支的条件是
+    <code>boxes[n].state == ST_OPEN &amp;&amp; !doorOpenOf(n)</code>，一旦进了 <code>ST_ERROR</code> 就再也匹配不上，
+    状态会<b>永久卡死，只能重启</b>。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 四格里只有 1 号格跑得到「门真的被打开了吗」这一步。</b>
+    <ul>
+      <li><b>1 号格</b>有真簧片，<code>doorSeenOpen</code> 防呆照常 —— 没见过门开就不认门关（这是坑 11 的修法）。</li>
+      <li><b>2~4 号格</b>没有硬件可读，<code>doOpen()</code> 走另一条分支：设一个
+          <code>closeAt = now + 3s</code>，到点自己发 <code>door_opened</code> 再发 <code>door_closed</code>，
+          格内有无按动作直接置位（存 = 有 / 取 = 无）。
+          <b>报文格式与真机完全一致，后端一行都没改。</b></li>
+    </ul>
+    下面「上电初态」那条同理只对 1 号格有意义（它有秤可读），虚拟格一律从 <code>IDLE / 无物</code> 起步。
+  </p>
+  <p class="note">
+    <b>上电初态不是固定的：</b>固件读一次压力传感器，按实况落到 <code>IDLE</code> 或 <code>OCCUPIED</code>，
+    避免断电恢复后状态错乱。
+    ⚠️ 但这也意味着<b>零点就是在开机那一下取的</b> —— 托盘上放着东西时重启，那东西会被当成零点，之后一直报「空」。
+    补救是把托盘清空重启，或者<b>在串口里敲 <code>t</code> 重新去皮</b>。
+  </p>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- 图 5  订单状态机（后端）                                       -->
+<!-- ============================================================ -->
+<section class="fig">
+  <h2>图 5　订单状态机（后端）</h2>
+  <p class="cap">落库在 <code>orders</code> 表。这是「防执行失败」的落点 —— 命令发出去了不算成功，门磁回执才算。</p>
+
+  <svg viewBox="0 0 940 470" role="img" aria-label="订单状态机">
+
+    <text class="sub-line" x="60" y="40">一条订单从下发开门命令到落库的一生；两条红线是兜底超时</text>
+
+    <!-- 起始 -->
+    <circle cx="70" cy="150" r="7" fill="#DB2777"/>
+    <line x1="80" y1="150" x2="132" y2="150" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="70" y="128" text-anchor="middle" fill="#64748B">/api/open</text>
+    <text class="smt" x="70" y="112" text-anchor="middle" fill="#64748B">通过授权</text>
+
+    <!-- pending -->
+    <rect x="140" y="110" width="180" height="80" rx="12" fill="#FFF7ED" stroke="#EA580C" stroke-width="2"/>
+    <text class="nt" x="230" y="144" text-anchor="middle" fill="#C2410C">pending</text>
+    <text class="nbs" x="230" y="166" text-anchor="middle">已下发开门命令</text>
+    <text class="nbs" x="230" y="182" text-anchor="middle">等设备确认</text>
+
+    <!-- pending -> opened -->
+    <line x1="320" y1="150" x2="392" y2="150" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="356" y="140" text-anchor="middle" fill="#475569">door_opened</text>
+
+    <!-- opened -->
+    <rect x="400" y="110" width="180" height="80" rx="12" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+    <text class="nt" x="490" y="144" text-anchor="middle" fill="#1D4ED8">opened</text>
+    <text class="nbs" x="490" y="166" text-anchor="middle">门确实开了</text>
+    <text class="nbs" x="490" y="182" text-anchor="middle">等用户关门</text>
+
+    <!-- opened -> done -->
+    <line x1="580" y1="150" x2="652" y2="150" stroke="#94A3B8" stroke-width="1.8" marker-end="url(#a-g)"/>
+    <text class="smt" x="616" y="140" text-anchor="middle" fill="#475569">door_closed</text>
+
+    <!-- done -->
+    <rect x="660" y="110" width="180" height="80" rx="12" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+    <text class="nt" x="750" y="144" text-anchor="middle" fill="#0F766E">done</text>
+    <text class="nbs" x="750" y="166" text-anchor="middle">门关上了才算完成</text>
+    <text class="nbs" x="750" y="182" text-anchor="middle">存件在此刻生成取件码</text>
+
+    <!-- pending -> failed -->
+    <line x1="230" y1="190" x2="230" y2="332" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <text class="smt" x="242" y="246" fill="#DC2626">15 秒没等到 door_opened</text>
+    <text class="smt" x="242" y="264" fill="#B91C1C">OPEN_ACK_TIMEOUT</text>
+
+    <!-- opened -> failed -->
+    <path d="M490,190 C490,290 410,372 328,372" fill="none" stroke="#DC2626" stroke-width="1.8" marker-end="url(#a-r)"/>
+    <text class="smt" x="396" y="272" fill="#DC2626">60 秒没等到 door_closed</text>
+    <text class="smt" x="396" y="290" fill="#B91C1C">OPEN_CLOSE_TIMEOUT</text>
+
+    <!-- failed -->
+    <rect x="140" y="340" width="180" height="80" rx="12" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="2"/>
+    <text class="nt" x="230" y="374" text-anchor="middle" fill="#B91C1C">failed</text>
+    <text class="nbs" x="230" y="396" text-anchor="middle">超时或下发失败</text>
+    <text class="nbs" x="230" y="412" text-anchor="middle">审计里留有原因</text>
+
+    <!-- 说明 -->
+    <rect x="400" y="330" width="490" height="100" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <text class="mt" x="416" y="354" fill="#1E293B">三个容易漏掉的地方</text>
+    <circle cx="422" cy="376" r="2.4" fill="#EA580C"/>
+    <text class="smt" x="434" y="380" fill="#475569">设备离线或 MQTT 发布失败 → 直接判 failed，不让订单干等到超时</text>
+    <circle cx="422" cy="396" r="2.4" fill="#EA580C"/>
+    <text class="smt" x="434" y="400" fill="#475569">命令先落库再 publish —— 回执可能毫秒级就到，订单必须先有主</text>
+    <circle cx="422" cy="416" r="2.4" fill="#EA580C"/>
+    <text class="smt" x="434" y="420" fill="#475569">两个阈值都可用环境变量覆盖，演示失败路径时很方便</text>
+  </svg>
+
+  <p class="note">
+    <b>为什么 <code>done</code> 要等门磁回执：</b>后端不因为「命令发出去了」就认为存取成功 ——
+    设备可能根本没开门，或者开了没人关门。<code>pending</code> 15 秒、<code>opened</code> 60 秒是两个兜底超时
+    （可用环境变量 <code>OPEN_ACK_TIMEOUT</code> / <code>OPEN_CLOSE_TIMEOUT</code> 调），超时一律判 <code>failed</code>。
+  </p>
+  <p class="note warn">
+    <b>⚠️ 已知缺口：<code>advance()</code> 是「按格」推进的，不是「按单」。</b>
+    它先从这一格里挑单、再做条件 UPDATE：
+    <code>SELECT id FROM orders WHERE box=? AND status=? ORDER BY id DESC LIMIT 1</code>
+    然后 <code>UPDATE … WHERE id=? AND status=?</code> ——
+    <b>「推进哪一张」是按格号挑的，因为门磁回执里没有订单号</b>。
+    于是这个时序会出事：某格上一单的 <code>door_closed</code> 迟到，而该格此刻恰有<b>另一张</b>
+    在 <code>opened</code> 的单，这张回执就会推错单（还会用错的 <code>closed_at</code> 去计费）。
+    现实中要凑齐这个时序不容易，但它是真的。
+    <b>根因与修法</b>：<code>publish_open()</code> 下发的 <code>cmd</code> 里其实带着 <code>order</code>，
+    但固件没把它带回回执 —— 让固件原样回传、<code>advance()</code> 改成按 <code>id</code> 推进即可。
+    <b>本次没做，只记在 README 的「已知缺口」里。</b>
+  </p>
+</section>
+
+</main>
+
+</body>
+</html>
